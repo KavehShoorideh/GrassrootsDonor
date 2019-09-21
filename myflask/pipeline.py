@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from pathlib import Path
 from configparser import ConfigParser
+import csv
 config = ConfigParser()
 config.read('config.ini')
 # Config usage Examples:
@@ -20,21 +21,23 @@ def launch_pipeline(user_fav_cand, user_budget, user_zip_code):
     # The data should include candidate names, location of district (e.g. zip), party, and
     # funding to date, preferably as a time-series
 
-    user_fav_cand = read_cand_list_from_file()
 
-    temp_output = [dict(index=1, candidate=user_fav_cand,
-                               win_chance_before='10%', win_chance_after='100%', web_link="https://www.google.com/")]
+    x = read_cand_list_from_file()
+    temp_output = []
+    for i, cand in enumerate(x):
+        temp_output.append(
+            dict(index=i, candidate=cand['name'],
+                      win_chance_before='10%', win_chance_after='100%', web_link="https://www.google.com/")
+                 )
     return temp_output
 
 def read_cand_list_from_file():
     filename = config.get('filenames', '2020_candidate_file')
     home = Path(os.getcwd())
-    filename = filename.strip('\'')
-    print(home/filename)
-    df = pd.read_csv(home / filename)
-    print(df)
-    # Placeholder:
-    first_candidate = df['name'].loc[0]
-    print(first_candidate)
-    return first_candidate
 
+    # Reading from config.ini file returns extra single quotes, remove first:
+    filename = home / filename.strip('\'')
+
+    with open(filename, 'r') as f:
+        for record in csv.DictReader(f):
+            yield record
