@@ -26,7 +26,7 @@ def launch_pipeline(user_fav_cand, user_budget, user_zip_code):
 
     output = []
     for i, candidate in enumerate(candidate_list):
-        temp_output.append(
+        output.append(
             dict(index=i, candidate=candidate['name'],
                       win_chance_before='10%', win_chance_after='100%', web_link="https://www.google.com/")
                  )
