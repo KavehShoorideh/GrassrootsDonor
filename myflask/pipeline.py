@@ -22,22 +22,22 @@ def launch_pipeline(user_fav_cand, user_budget, user_zip_code):
     # funding to date, preferably as a time-series
 
 
-    x = read_cand_list_from_file()
-    temp_output = []
-    for i, cand in enumerate(x):
+    candidate_list = read_cand_list_from_file()
+
+    output = []
+    for i, candidate in enumerate(candidate_list):
         temp_output.append(
-            dict(index=i, candidate=cand['name'],
+            dict(index=i, candidate=candidate['name'],
                       win_chance_before='10%', win_chance_after='100%', web_link="https://www.google.com/")
                  )
-    return temp_output
+        # Only return 5 recommendations
+        if i == 4: break
+    return output
 
 def read_cand_list_from_file():
-    filename = config.get('filenames', '2020_candidate_file')
-    home = Path(os.getcwd())
-
-    # Reading from config.ini file returns extra single quotes, remove first:
-    filename = home / filename.strip('\'')
-
-    with open(filename, 'r') as f:
+    # Reading from config.ini file returns extra single quotes, remove first using strip
+    filename = config.get('filenames', '2020_candidate_file').strip('\'')
+    filepath = Path(os.getcwd()) / filename
+    with open(filepath, 'r') as f:
         for record in csv.DictReader(f):
             yield record
