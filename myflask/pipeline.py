@@ -22,7 +22,7 @@ def launch_pipeline(user_fav_cand, user_budget, user_zip_code):
     # funding to date, preferably as a time-series
 
 
-    candidate_list = read_cand_list_from_file()
+    candidate_list = engineer_features(read_cand_list_from_file())
 
     output = []
     for i, candidate in enumerate(candidate_list):
@@ -41,3 +41,19 @@ def read_cand_list_from_file():
     with open(filepath, 'r') as f:
         for record in csv.DictReader(f):
             yield record
+
+def engineer_features(records):
+    for record in records:
+        # Some manipulation here
+        # also fix preference score
+
+        # assume user is dem for now:
+        myParty = 'Democratic'
+        print(record)
+        if record['party'] is myParty:
+            preference_score = 1
+        else:
+            preference_score = 0
+        # Later: preference score should include proximity also ideology
+        record['preference_score'] = preference_score
+        yield record
