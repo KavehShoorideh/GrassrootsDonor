@@ -64,14 +64,19 @@
 
         <form  action="/output" method="GET">
             <div class="form-group">
-                <label for="fav-issue">Favorite Issue</label>
-                <input type="text" id="fav-issue" name='fav-issue' placeholder="e.g. Environment">
-                <label for="fav-cand">Favorite Presidential Candidate:</label>
-                <input type="text" id="fav-cand" name="fav-cand" placeholder="e.g. Bernie">
+                <label for="fav-issue">Which candidate are you most likely to donate to?</label>
+                <input type="text" id="user-fav-cand" name="user-fav-cand" placeholder="e.g. Bernie Sanders">
+                <br>
+                <label for="fav-cand">What's your budget?</label>
+                <input type="text" id="user-budget" name="user-budget" placeholder="$2800 max">
+                <br>
+                <label for="fav-cand">What's your zip code?</label>
+                <input type="text" id="user-zip-code" name="user-zip-code">
+                <br>
             </div>
 
             <div>
-                <button type="submit" class="btn btn-default btn-lg">Find my state candidate!</button>
+                <button type="submit" class="btn btn-default btn-lg">Find my candidates!</button>
             </div>
 
         </form>
@@ -89,9 +94,9 @@
       </div>
 
       <table class="table table-hover">
-      <tr><th>Index</th><th>Issue</th><th>Kaveh's Birth Month</th></tr>
-      {% for birth in births %}
-      <tr><td>{{ birth['index'] }}</td><td>{{ birth['issue']}}</td><td> {{ birth['birth_month'] }}</td></tr>
+      <tr><th>Index</th><th>Candidate</th><th>Win Chance Before</th><th>Win Chance After</th><th>Campaign Site Link<th></tr>
+      {% for candidate in recommendations %}
+      <tr><td>{{ candidate['index'] }}</td><td>{{ candidate['candidate']}}</td><td>{{ candidate['win_chance_before'] }}</td><td>{{ candidate['win_chance_after'] }}</td><td><a href={{ candidate['web_link'] }}>{{ candidate['web_link'] }}</a></td></tr>
       {% endfor %}
       </table>
 

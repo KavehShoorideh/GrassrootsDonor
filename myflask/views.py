@@ -26,14 +26,15 @@ def cesareans_input():
 @app.route('/output')
 def cesareans_output():
     # pull 'birth_month' from input field and store it
-    fav_cand = request.args.get('fav-cand')
-    fav_issues = request.args.get('fav-issue').split(',')
-    print(fav_cand)
-    print(fav_issues)
+    user_fav_cand = request.args.get('user-fav-cand')
+    user_budget = request.args.get('user-budget')
+    user_zip_code = request.args.get('user_zip_code')
+    print(user_fav_cand)
+    print(user_budget)
+    print(user_zip_code)
     candidates = []
     # query_results = pd.read_sql_query(query, con)
-    for i, issue in enumerate(fav_issues):
-        candidates.append(dict(index=i+1, issue=issue,
-                           birth_month='aug'))
-        the_result = len(candidates)
-    return render_template("output.html", births=candidates, the_result=the_result)
+    candidates.append(dict(index=1, candidate=user_fav_cand,
+                           win_chance_before='10%', win_chance_after='100%', web_link="https://www.google.com/"))
+    the_result = len(candidates)
+    return render_template("output.html", recommendations=candidates, the_result=the_result)
