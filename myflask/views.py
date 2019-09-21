@@ -6,18 +6,6 @@ import psycopg2
 from myflask.a_Model import ModelIt
 from myflask import pipeline
 
-# Python code to connect to Postgres
-# You may need to modify this based on your OS,
-# as detailed in the postgres dev setup materials.
-user = 'postgres'  # add your Postgres username here
-password = 'password'
-host = 'localhost'
-dbname = 'birth_db'
-db = create_engine('postgres://%s%s/%s' % (user, host, dbname))
-con = None
-con = psycopg2.connect(database=dbname, user=user, host=host, password=password)  # add your Postgres password here
-
-
 @app.route('/')
 @app.route('/index')
 @app.route('/input')
