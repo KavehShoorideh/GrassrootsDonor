@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 import pandas as pd
 import psycopg2
 from myflask.a_Model import ModelIt
+from myflask import pipeline
 
 # Python code to connect to Postgres
 # You may need to modify this based on your OS,
@@ -20,21 +21,19 @@ con = psycopg2.connect(database=dbname, user=user, host=host, password=password)
 @app.route('/')
 @app.route('/index')
 @app.route('/input')
-def cesareans_input():
+def user_input():
     return render_template("input.html")
 
 @app.route('/output')
-def cesareans_output():
-    # pull 'birth_month' from input field and store it
+def make_recommendation():
+    # pull fields from input field and store it
     user_fav_cand = request.args.get('user-fav-cand')
     user_budget = request.args.get('user-budget')
     user_zip_code = request.args.get('user_zip_code')
-    print(user_fav_cand)
-    print(user_budget)
-    print(user_zip_code)
-    candidates = []
-    # query_results = pd.read_sql_query(query, con)
-    candidates.append(dict(index=1, candidate=user_fav_cand,
-                           win_chance_before='10%', win_chance_after='100%', web_link="https://www.google.com/"))
-    the_result = len(candidates)
-    return render_template("output.html", recommendations=candidates, the_result=the_result)
+
+    recommendations = pipeline.launch_pipeline(user_fav_cand, user_budget, user_zip_code)
+    if recommendations:
+        # Some recommendations have been received!
+        return render_template("output.html", recommendations=recommendations, the_result=len(recommendations))
+    else:
+        print("No recommendations received!")
