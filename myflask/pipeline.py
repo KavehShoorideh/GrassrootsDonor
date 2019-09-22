@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import csv
 from configparser import ConfigParser
+from myflask.election_model import win_chance_model as model
 config = ConfigParser()
 config.read('config.ini')
 # Config usage Examples:
@@ -18,8 +19,9 @@ def launch_pipeline(user_fav_cand=None, user_budget=20, user_zip_code=90001):
 
     # 1. Clean user's input, apply defaults when appropriate.
     # Inputs from text boxes will be strings
+    # TODO: clean candidate and zip code too
     if isinstance(user_budget, str):
-        if user_budget == '': user_budget = 20
+        if user_budget.strip() == '': user_budget = 20
         try:
             user_budget = float(user_budget)
         except ValueError:
@@ -71,15 +73,11 @@ def engineer_features(records):
 def apply_model(records, user_budget):
     for record in records:
         # Calculate these using the model
-        win_chance_before = win_chance_model(record, budget=0)
-        win_chance_after = win_chance_model(record, budget=int(user_budget))
+        win_chance_before = model(record, budget=0)
+        win_chance_after = model(record, budget=int(user_budget))
+
+        # add data to record
         record['win_chance_before'] = f'{(win_chance_before):.0%}'
         record['win_chance_after'] = f'{(win_chance_after):.0%}'
         record['impact'] = f'{(win_chance_after - win_chance_before):.0%}'
         yield record
-
-def win_chance_model(record, budget):
-    if budget == 0:
-        return 0.1
-    if budget > 0:
-        return 0.8
