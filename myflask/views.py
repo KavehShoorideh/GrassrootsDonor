@@ -32,16 +32,13 @@ def user_input():
 
 @app.route('/output')
 def make_recommendation():
-
-
-
     # pull fields from input field and store it
-    user_fav_cand = request.args.get('user-fav-cand')
+    user_fav = request.args.get('user-fav-cand')
     user_budget = request.args.get('user-budget')
-    user_zip_code = request.args.get('user_zip_code')
-    user_inputs = dict(user_fav_cand=user_fav_cand, user_budget=user_budget, user_zip_code=user_zip_code)
+    user_zip = request.args.get('user_zip_code')
+    user_inputs = dict(user_fav=user_fav, user_budget=user_budget, user_zip=user_zip)
 
-    recommendations = pipeline.launch_pipeline(**user_inputs)
+    recommendations = pipeline.launch_pipeline(user_inputs)
     if recommendations:
         # Some recommendations have been received!
         return render_template("output.html", recommendations=recommendations, the_result=len(recommendations))
