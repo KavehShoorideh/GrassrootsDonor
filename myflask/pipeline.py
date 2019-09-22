@@ -2,8 +2,8 @@
 import pandas as pd
 import os
 from pathlib import Path
-from configparser import ConfigParser
 import csv
+from configparser import ConfigParser
 config = ConfigParser()
 config.read('config.ini')
 # Config usage Examples:
@@ -14,13 +14,21 @@ config.read('config.ini')
 # # getint() and getboolean() also do this for their respective types
 # an_int = config.getint('main', 'an_int')
 
-def launch_pipeline(user_fav_cand, user_budget, user_zip_code):
+def launch_pipeline(user_fav_cand=None, user_budget=20, user_zip_code=90001):
+
+    # 1. Clean user's input, apply defaults when appropriate.
+    # Inputs from text boxes will be strings
+    if isinstance(user_budget, str):
+        if user_budget == '': user_budget = 20
+        try:
+            user_budget = float(user_budget)
+        except ValueError:
+            raise ValueError(f'Budget must be a number; {user_budget} given instead')
+
     # Step 1: Get list of 2020 candidates from file.
     # This data should be updated nightly by a script somewhere else
     # The data should include candidate names, location of district (e.g. zip), party, and
     # funding to date, preferably as a time-series
-
-
     records = apply_model(
         engineer_features(
             read_cand_list_from_file()
@@ -52,7 +60,6 @@ def engineer_features(records):
 
         # assume user is dem for now:
         myParty = 'Democratic'
-        print(record)
         if record['party'] == myParty:
             preference_score = 1
         else:
@@ -65,14 +72,13 @@ def apply_model(records, user_budget):
     for record in records:
         # Calculate these using the model
         win_chance_before = win_chance_model(record, budget=0)
-        win_chance_after = win_chance_model(record, budget=user_budget)
+        win_chance_after = win_chance_model(record, budget=int(user_budget))
         record['win_chance_before'] = f'{(win_chance_before):.0%}'
         record['win_chance_after'] = f'{(win_chance_after):.0%}'
         record['impact'] = f'{(win_chance_after - win_chance_before):.0%}'
         yield record
 
-def win_chance_model(record, budget=0):
-    budget = float(budget)
+def win_chance_model(record, budget):
     if budget == 0:
         return 0.1
     if budget > 0:
