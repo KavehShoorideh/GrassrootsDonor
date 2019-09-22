@@ -31,6 +31,9 @@ def launch_pipeline(user_fav_cand=None, user_budget=20, user_zip_code=90001):
     # This data should be updated nightly by a script somewhere else
     # The data should include candidate names, location of district (e.g. zip), party, and
     # funding to date, preferably as a time-series
+
+    race_list()
+
     records = apply_model(
         engineer_features(
             read_cand_list_from_file()
@@ -54,6 +57,17 @@ def read_cand_list_from_file():
     with open(filepath, 'r') as f:
         for record in csv.DictReader(f):
             yield record
+
+def race_list():
+    """ Group candidates by the seat they're running for, and feed into the model"""
+
+    # Reading from config.ini file returns extra single quotes, remove first using strip
+    filename = config.get('filenames', '2020_candidate_file').strip('\'')
+    filepath = Path(os.getcwd()) / filename
+    df = pd.read_csv(filepath)
+    grouped_df = df.groupby("office")
+    for key, item in grouped_df:
+        print(grouped_df.get_group(key), "\n\n")
 
 def engineer_features(records):
     for record in records:
