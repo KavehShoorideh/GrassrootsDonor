@@ -64,6 +64,7 @@
       <table class="table table-hover">
       <tr>
           <th>Candidate</th>
+          <th>Office</th>
           <th>Win Chance Before</th>
           <th>Win Chance After</th>
           <th>Impact</th>
@@ -71,6 +72,7 @@
           <th>Campaign Site Link<th></tr>
       {% for record in recommendations %}
       <tr><td>{{ record['name']}}</td>
+          <td>{{ record['office']}}</td>
           <td>{{ record['win_chance_before'] }}</td>
           <td>{{ record['win_chance_after'] }}</td>
           <td>{{ record['impact'] }}</td>

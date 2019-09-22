@@ -21,6 +21,8 @@ def launch_pipeline(user_inputs):
     # Clean user's input, apply defaults when appropriate.
     # convert user's favorite from a name to a dict with all the data
     # This should be ok, since the names are chosen from the same file and should never throw an error
+    if user_inputs['user_fav'] == '':
+        user_inputs['user_fav'] = 'Bernie Sanders'
     user_inputs['user_cand'] = next(x for x in candidate_list() if x['name'] == user_inputs['user_fav'])
 
     # Inputs from text boxes will be strings
@@ -37,7 +39,7 @@ def launch_pipeline(user_inputs):
     # The data should include candidate names, location of district (e.g. zip), party, and
     # funding to date, preferably as a time-series
 
-    final = sorted([apply_model(user_inputs, race) for race in race_list(user_inputs)], key=lambda x: x['pref_score'])
+    final = sorted([apply_model(user_inputs, race) for race in race_list(user_inputs)], key=lambda x: x['pref_score'], reverse=True)
 
     # return only 5 values
     return final[:5]
@@ -75,6 +77,7 @@ def apply_model(user_input, race):
     race.donate(name, -budget)
     # add data to record
     record = {'name': name,
+              'office': race.favorite['office'],
               'win_chance_before': f'{(win_chance_before):.0%}',
               'win_chance_after': f'{(win_chance_after):.0%}',
               'impact': f'{(win_chance_after - win_chance_before):.0%}',

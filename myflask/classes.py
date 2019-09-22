@@ -29,7 +29,7 @@ class Race(object):
             long_cand = cand_zip[0]['long']
             distance = calcDist(lat_user, long_user, lat_cand, long_cand)
             candidate['ideology_score'] = 1 if (candidate['party'] == user_party) else 0
-            candidate['proximity_score'] = exp(-distance)
+            candidate['proximity_score'] = 1 #exp(-distance)
             candidate['pref_score'] = candidate['proximity_score'] * candidate['ideology_score']
 
 
