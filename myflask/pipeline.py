@@ -21,9 +21,8 @@ def launch_pipeline(user_inputs):
     # Clean user's input, apply defaults when appropriate.
     # convert user's favorite from a name to a dict with all the data
     # This should be ok, since the names are chosen from the same file and should never throw an error
-    if user_inputs['user_fav'] == '':
-        user_inputs['user_fav'] = 'Bernie Sanders'
-    user_inputs['user_cand'] = next(x for x in candidate_list() if x['name'] == user_inputs['user_fav'])
+    if user_inputs['user_party'] == '':
+        user_inputs['user_party'] = 'Democratic'
 
     # Inputs from text boxes will be strings
     # TODO: clean candidate and zip code too

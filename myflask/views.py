@@ -33,10 +33,10 @@ def user_input():
 @app.route('/output')
 def make_recommendation():
     # pull fields from input field and store it
-    user_fav = request.args.get('user-fav-cand')
+    user_party = request.args.get('user-party')
     user_budget = request.args.get('user-budget')
-    user_zip = request.args.get('user_zip_code')
-    user_inputs = dict(user_fav=user_fav, user_budget=user_budget, user_zip=user_zip)
+    user_minority = request.args.get('user-minority')
+    user_inputs = dict(user_party=user_party, user_budget=user_budget, user_minority=user_minority)
 
     recommendations = pipeline.launch_pipeline(user_inputs)
     if recommendations:

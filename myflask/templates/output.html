@@ -7,7 +7,7 @@
     <meta name="author" content="">
     <link rel="icon" href="/docs/4.1/assets/img/favicons/favicon.ico">
 
-    <title>Starter Template for Bootstrap</title>
+    <title>PolitImpact</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.1/examples/starter-template/">
 
@@ -24,27 +24,27 @@
 <main class="container">
 
     <div class="starter-template">
-        <h2>Output Page</h2>
-        <p>Enter some user input</p>
+        <h2>PolitImpact</h2>
+        <p>Enter preferences</p>
     </div>
 
     <div class = "container">
 
-        <form  action="/output" method="GET">
+       <form  action="/output" method="GET">
             <div class="form-group">
-                <label for="fav-issue">Which candidate are you most likely to donate to?</label>
-                <input type="text" id="user-fav-cand" name="user-fav-cand" placeholder="e.g. Bernie Sanders">
+                <label for="user-party">What political party?</label>
+                <input type="text" id="user-party" name="user-party" placeholder="e.g. Democratic or Republican">
                 <br>
-                <label for="fav-cand">What's your budget?</label>
-                <input type="text" id="user-budget" name="user-budget" placeholder="$2800 max">
+                <label for="budget">What's your budget?</label>
+                <input type="text" id="user-budget" name="user-budget" placeholder="$4700 max per candidate">
                 <br>
-                <label for="fav-cand">What's your zip code?</label>
-                <input type="text" id="user-zip-code" name="user-zip-code">
+                <label for="minority">Minorities?</label>
+                <input type="text" id="user-minority" name="user-minority", placeholder="e.g. Women, LGBT, ...">
                 <br>
             </div>
 
             <div>
-                <button type="submit" class="btn btn-default btn-lg">Find my candidates!</button>
+                <button type="submit" class="btn btn-default btn-lg">Find my state candidate!</button>
             </div>
 
         </form>
@@ -58,7 +58,7 @@
     <div class="container">
       <div class="starter-template">
         <h3>Results:</h3>
-        <p class="lead">Below is the result of your query.<br> You just took user input and looked up the information. Now we need to expand the functionality!</p>
+        <p class="lead">If X many people donate Y amount, this could be the impact!</p>
       </div>
 
       <table class="table table-hover">
@@ -68,7 +68,7 @@
           <th>Win Chance Before</th>
           <th>Win Chance After</th>
           <th>Impact</th>
-          <th>Preference Score</th>
+<!--          <th>Preference Score</th>-->
           <th>Campaign Site Link<th></tr>
       {% for record in recommendations %}
       <tr><td>{{ record['name']}}</td>
@@ -76,7 +76,7 @@
           <td>{{ record['win_chance_before'] }}</td>
           <td>{{ record['win_chance_after'] }}</td>
           <td>{{ record['impact'] }}</td>
-          <td>{{ record['pref_score'] }}</td>
+<!--          <td>{{ record['pref_score'] }}</td>-->
           <td><a href={{ record['web_link'] }}>{{ record['web_link'] }}</a></td>
       </tr>
       {% endfor %}
@@ -84,19 +84,6 @@
 
 
      </div><!-- /.container -->
-
-    <main class="container">
-      <div class="starter-template">
-        <h3>Another Result:</h3>
-        <p class="lead">Now we've taken the input and called a function from your package.<br>The result is {{the_result}}</p>
-      </div>
-
-
-      <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-      <script src="static/js/bootstrap.min.js"></script>
-
-
-     </main><!-- /.container -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->

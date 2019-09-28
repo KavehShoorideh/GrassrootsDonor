@@ -19,15 +19,15 @@ class Race(object):
                 candidate[column] =+ amount
 
     def calculate_scores(self, user_input):
-        user_party = user_input['user_cand']['party']
-        user_zip = zipcodes.matching(user_input['user_cand']['zip'])
-        lat_user = user_zip[0]['lat']
-        long_user = user_zip[0]['long']
+        user_party = user_input['user_party']
+        # user_zip = zipcodes.matching(user_input['user_cand']['zip'])
+        # lat_user = user_zip[0]['lat']
+        # long_user = user_zip[0]['long']
         for candidate in self.candidate_list:
-            cand_zip = zipcodes.matching(str(candidate['zip']))
-            lat_cand = cand_zip[0]['lat']
-            long_cand = cand_zip[0]['long']
-            distance = calcDist(lat_user, long_user, lat_cand, long_cand)
+            # cand_zip = zipcodes.matching(str(candidate['zip']))
+            # lat_cand = cand_zip[0]['lat']
+            # long_cand = cand_zip[0]['long']
+            # # distance = calcDist(lat_user, long_user, lat_cand, long_cand)
             candidate['ideology_score'] = 1 if (candidate['party'] == user_party) else 0
             candidate['proximity_score'] = 1 #exp(-distance)
             candidate['pref_score'] = candidate['proximity_score'] * candidate['ideology_score']
