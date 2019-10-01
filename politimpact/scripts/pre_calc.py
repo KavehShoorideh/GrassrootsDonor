@@ -120,11 +120,12 @@ def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
                 newFacts = addMoney(these_cands, row.Index, donation)
                 modelResults = raceModel(newFacts, model)
                 modelResults = findRanking(modelResults)
-                newResults = modelResults.copy()[['PRED_VOTE_PCT', 'RANK']].reset_index()
+                newResults = modelResults.copy()[['PRED_VOTE_PCT', 'RANK', 'WINS']].reset_index()
                 resultsList2.append(newResults.copy())
             allResults = pd.concat(resultsList2, keys=dollarlist, names=['DONATION', 'ROW'])
             allResults = allResults.droplevel(level='ROW')
             allResults = allResults.reset_index().set_index([*cand_key, 'DONATION']).sort_index()
+            allResults = findMinWinDonation(allResults)
             resultsList1.append(allResults.copy())
         allResults = pd.concat(resultsList1)
         resultsList0.append(allResults.copy())
@@ -143,11 +144,20 @@ def findRanking(candGroup):
     """Take in candidate group with results (with PRED_VOTE_PCT column) and return with ranking appended"""
     temp = candGroup.copy().sort_values('PRED_VOTE_PCT', ascending=False)
     temp['RANK'] = range(1, len(temp)+1)
+    temp['WINS'] = temp['RANK'] <=2
     return temp
 
 def findImpact(candGroup):
     """Take in candidate group with results (with PRED_VOTE_PCT column) and return impact (Delta %win / $) appended"""
     pass
+
+def findMinWinDonation(candGroup):
+    """Take in candidate group with results (with PRED_VOTE_PCT column) and return impact (Delta %win / $) appended"""
+    temp = candGroup.copy()
+    def myFunc(x):
+        return x['WINS'].idxmax()[3]
+    temp['MIN_DONATION'] = temp.groupby([*cand_key]).apply(myFunc)
+    return temp
 
 def raceModel(candGroup, model):
     """ Take in a candidate group, append a column 'PRED_VOTE_PCT' with predicted percentage of votes"""
