@@ -68,7 +68,7 @@
           <th>Win Chance Before</th>
           <th>Win Chance After</th>
           <th>Impact</th>
-<!--          <th>Preference Score</th>-->
+          <th>Party</th>
           <th>Campaign Site Link<th></tr>
       {% for record in recommendations %}
       <tr><td>{{ record['name']}}</td>
@@ -76,7 +76,7 @@
           <td>{{ record['win_chance_before'] }}</td>
           <td>{{ record['win_chance_after'] }}</td>
           <td>{{ record['impact'] }}</td>
-<!--          <td>{{ record['pref_score'] }}</td>-->
+          <td>{{ record['party'] }}</td>
           <td><a href={{ record['web_link'] }}>{{ record['web_link'] }}</a></td>
       </tr>
       {% endfor %}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from myflask import app
+from politimpact.flaskserver import app
 app.run(debug = True)
 
 # from update_candidate_data import update_candidate_data as updater
