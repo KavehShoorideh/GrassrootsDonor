@@ -10,50 +10,24 @@ pd.set_option('display.max_rows', 500)
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']
 
-def preCalc(user_party=None, today=datetime.today()):
-    print("REMEMBER TO FIX LOG SCALE!!!")
+def preCalc(user_party=None, today=None):
+    """
+    :param user_party: user's selected party.
+    :param today: Simulated date in 2018
+    :return: Dataframe indexed by race, candidate, and users potential donations, with columns including
+    winning chance, rank, and minimum donation required to win.
+    """
 
-    modelFile = 'LogRegModel.joblib'
+    if today is None:
+        end_date = parse('2018-12-31')
+    elif isinstance(end_date, str):
+        end_date = parse(end_date)
+
+    print("REMEMBER TO FIX LOG SCALE!!!")
     model = load(cfg.linRegModel)
 
-    """
-    Steps:
-    -1. Clean Data, Engineer features.
-
-    0. For dynamic input, recalculate based on user_inputs
-        If date given, drop all moneys after date
-        then re-engineer features
-        If party given, loop over races (below) where the user's party is NOT in top two
-
-    1. Create baseline race table
-        Loop over races
-        Feed each race to model
-        Find #1 #2, and their parties
-        Store in table
-
-    2. Group races in table and loop over them
-            Loop over candidates
-            Create 5 new RACE dataframes, with extra amounts of money
-            Plug RACE with new cand info back into model
-            Tabulate results and save
-            Identify needed amount by each candidate
-            Create new candidate table: Cand, Seat, Party, Present_Rank, Money required to break top 2
-    """
-
-    # if today:
-    #     pass
-    #     clean = pd.read_csv(cfg.flask_candidate_file, index_col=0)
-    #     # Run feature engineering with today's date
-    #     # mask = dfMoney['TRANSACTION_DATE'].apply(lambda x: x.year) < today
-    #     # dfMoney = dfMoney[mask]
-    # else:
-    #     # Load already engineered data
-    #     data = pd.read_csv(cfg.flask_candidate_file, index_col=0)
-    #     # Convert date columns from string to datetime
-    #     data.loc[:, 'ELECTION_DATE'] = pd.to_datetime(data['ELECTION_DATE'])
-
     # Engineer features
-    data, _, _= engineerFeatures(start_date = '2017-01-01', end_date = today)
+    data, _, _= engineerFeatures(start_date = '2017-01-01', end_date = end_date)
 
     # create candidate table
     races = createBaselineRaceTable(data, model)
@@ -138,7 +112,6 @@ def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
         resultsList0.append(allResults.copy())
     allResults = pd.concat(resultsList0)
     return allResults
-
 
 def addMoney(candGroup, cand_index, amount):
     """Function to add and transform money to a candidate's race info, and return new candidate group dataframe"""
