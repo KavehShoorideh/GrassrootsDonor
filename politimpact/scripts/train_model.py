@@ -1,23 +1,30 @@
 import os
 os.chdir(r"C:\Users\kaveh\OneDrive\Code Repos\Data Science\Insight\PolitImpact\politimpact")
+from datetime import datetime
 import politimpact.config as cfg
+from politimpact.scripts.engineer_features import engineerFeatures
 import pandas as pd
+import numpy as np
+import math
+from joblib import dump, load
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-import math
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold
 from sklearn import metrics
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
-from joblib import dump, load
+from politimpact.scripts.engineer_features import engineerFeatures
+pd.set_option('display.max_rows', 500)
+race_key = ['CONTEST_NAME', 'ELECTION_DATE']
+cand_key = [*race_key, 'CANDIDATE_NAME']
+#
+# dfCand = pd.read_csv(cfg.training_candidate_file)
+# dfRace = pd.read_csv(cfg.training_race_file)
+# dfMoney = pd.read_csv(cfg.training_money_file)
 
-dfCand = pd.read_csv(cfg.training_candidate_file)
-dfRace = pd.read_csv(cfg.training_race_file)
-dfMoney = pd.read_csv(cfg.training_money_file)
-
-def train1(dfCand, dfRace, dfMoney):
+def train1(dfCand):
     """ Linear Regression """
 
     myFeatures = ['INCUMBENT_FLAG', 'PARTY_LEAN', 'CAND_TOTAL_RAISED', 'RACE_TOTAL_RAISED', 'RACE_VOTE_TOTAL']
@@ -39,7 +46,7 @@ def train1(dfCand, dfRace, dfMoney):
     print(f'mse is {mse}, its square is {error}')
     dump(myModel, cfg.linRegModel)
 
-def train2(dfCand, dfRace, dfMoney):
+def train2(dfCand):
     """ Random Forest NOT FINISHED YET """
     myFeatures = ['INCUMBENT_FLAG', 'PARTY_LEAN', 'CAND_TOTAL_RAISED', 'RACE_TOTAL_RAISED', 'RACE_VOTE_TOTAL']
     myLabel = 'VOTE_TOTAL'
@@ -87,4 +94,7 @@ def train2(dfCand, dfRace, dfMoney):
 
 
 if __name__ == '__main__':
-    train1(dfCand, dfRace, dfMoney)
+    if True:
+        data, _, _= engineerFeatures(start_date = '2015-01-01')
+
+    train1(data)

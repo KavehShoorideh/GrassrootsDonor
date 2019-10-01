@@ -15,7 +15,7 @@ try:
     dfCand.drop(['VOTE_TOTAL','OUTCOME'], axis=1, inplace=True)
 except KeyError:
     pass
-dfCand.to_csv(cfg.dataDir/ 'flask_cand_data.csv')
+dfCand.to_csv(cfg.flask_2018_data)
 
 
 dfRace.loc[:, 'ELECTION_DATE'] = pd.to_datetime(dfRace['ELECTION_DATE'])

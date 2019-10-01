@@ -10,6 +10,9 @@ import math
 from datetime import datetime
 from collections import defaultdict
 import pandas as pd
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
+pd.set_option('display.max_rows', 150)
 
 myConfig = ConfigParser()
 myConfig.read('config.ini')
@@ -34,6 +37,12 @@ votes_files = [votes_2016_file, votes_2018_file]
 flask_money_file = dataDir / 'flask_money_data.csv'
 flask_candidate_file = dataDir / 'flask_cand_data.csv'
 flask_race_file = dataDir / 'flask_race_data.csv'
+
+flask_results_file = dataDir / 'flask_results_file.csv'
+flask_2018_data = dataDir / 'flask_2018_data.csv'
+precalc_cand_data = dataDir / 'precalc_2018_data.csv'
+engineered_cand_data = dataDir / 'engineered_cand.csv'
+
 
 # files for training models
 training_race_file = dataDir / myConfig.get('paths', 'racesFile').strip('\'')

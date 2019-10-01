@@ -1,8 +1,16 @@
+import os
+os.chdir(r"C:\Users\kaveh\OneDrive\Code Repos\Data Science\Insight\PolitImpact\politimpact")
+from datetime import datetime
+import pandas as pd
+import politimpact.config as cfg
+from joblib import load, dump
+import numpy as np
+from politimpact.scripts.engineer_features import engineerFeatures
+pd.set_option('display.max_rows', 500)
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']
 
-
-def preCalc(user_party=None, today=None):
+def preCalc(user_party=None, today=datetime.today()):
     print("REMEMBER TO FIX LOG SCALE!!!")
 
     modelFile = 'LogRegModel.joblib'
@@ -32,27 +40,26 @@ def preCalc(user_party=None, today=None):
             Create new candidate table: Cand, Seat, Party, Present_Rank, Money required to break top 2
     """
 
-    if today:
-        pass
-        features = pd.read_csv(cfg.flask_candidate_file, index_col=0)
-        # Run feature engineering with today's date
-        # mask = dfMoney['TRANSACTION_DATE'].apply(lambda x: x.year) < today
-        # dfMoney = dfMoney[mask]
-    else:
-        # Load already engineered data
-        data = pd.read_csv(cfg.flask_candidate_file, index_col=0)
-        # Convert date columns from string to datetime
-        data.loc[:, 'ELECTION_DATE'] = pd.to_datetime(data['ELECTION_DATE'])
+    # if today:
+    #     pass
+    #     clean = pd.read_csv(cfg.flask_candidate_file, index_col=0)
+    #     # Run feature engineering with today's date
+    #     # mask = dfMoney['TRANSACTION_DATE'].apply(lambda x: x.year) < today
+    #     # dfMoney = dfMoney[mask]
+    # else:
+    #     # Load already engineered data
+    #     data = pd.read_csv(cfg.flask_candidate_file, index_col=0)
+    #     # Convert date columns from string to datetime
+    #     data.loc[:, 'ELECTION_DATE'] = pd.to_datetime(data['ELECTION_DATE'])
 
     # Engineer features
-    # step 0
+    data, _, _= engineerFeatures(start_date = '2017-01-01', end_date = today)
 
-    # Step 1
+    # create candidate table
     races = createBaselineRaceTable(data, model)
     dollarlist = [1, 10, 100, 1000, 10000, 100000, 1e6]
     candTables = createCandidateTables(data, model, races, dollarlist)
-    print(candTables)
-
+    candTables.to_csv(cfg.precalc_cand_data)
 
 def createBaselineRaceTable(data, model=None):
     """
