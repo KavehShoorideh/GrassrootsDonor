@@ -41,6 +41,8 @@ flask_race_file = dataDir / 'flask_race_data.csv'
 flask_results_file = dataDir / 'flask_results_file.csv'
 flask_2018_data = dataDir / 'flask_2018_data.csv'
 precalc_cand_data = dataDir / 'precalc_2018_data.csv'
+precalc_race_data = dataDir / 'precalc_2018_races.csv'
+
 engineered_cand_data = dataDir / 'engineered_cand.csv'
 
 

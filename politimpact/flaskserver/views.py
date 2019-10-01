@@ -1,12 +1,7 @@
 from flask import render_template, request
 from politimpact.flaskserver import app
 from politimpact import config as cfg
-
-import pandas as pd
-from politimpact.scripts import prepare_output
-from configparser import ConfigParser
-config = ConfigParser()
-config.read('config.ini')
+from politimpact.scripts.flask_data_interface import process
 
 @app.route('/')
 @app.route('/index')
@@ -16,22 +11,20 @@ def user_input():
 
 @app.route('/output')
 def make_recommendation():
-    # pull fields from input field and store it
+    # pull fields from request
     user_party = request.args.get('user-party')
     user_budget = request.args.get('user-budget')
-    user_inputs = dict(user_party=user_party, user_budget=user_budget)
-    recommendations = []
+    # user_today = request.args.get('user_today')
+    user_today = None
+    user_inputs = dict(user_party=user_party, user_budget=user_budget, user_today=user_today)
     warnings = []
     try:
-        results = pd.read_csv(cfg.candidate_prediction_file)
-        cleaned_inputs = prepare_output.clean(user_inputs)
-        recommendations = prepare_output.process(user_inputs, results)
+        recommendations = process(user_inputs)
         if recommendations:
             # Some recommendations have been received!
             return render_template("output.html", recommendations=recommendations, the_result=len(recommendations))
         else:
             print("No recommendations received!")
+            return render_template("input.html")
     except FileNotFoundError:
-        warning = 'Results File Not Found!'
-        warnings.append(warning)
-        print(warning)
+        return render_template("input.html")

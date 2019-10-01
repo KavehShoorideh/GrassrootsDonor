@@ -11,15 +11,16 @@ pd.set_option('display.max_rows', 500)
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']
 
-def preCalc(user_party=None, today=None):
+def preCalc(user_party=None, user_today=None, user_budget=None):
     """
-    :param user_party: user's selected party.
-    :param today: Simulated date in 2018
+    :param user_party: user's selected party; TODO: use to speed up race processing.
+    :param user_today: Simulated date in 2018
+    :param user_budget: user's donation budget; unused here.
     :return: Dataframe indexed by race, candidate, and users potential donations, with columns including
     winning chance, rank, and minimum donation required to win.
     """
 
-    if today is None:
+    if user_today is None:
         end_date = parse('2018-12-31')
     elif isinstance(end_date, str):
         end_date = parse(end_date)
@@ -34,6 +35,8 @@ def preCalc(user_party=None, today=None):
     races = createBaselineRaceTable(data, model)
     dollarlist = [1, 10, 100, 1000, 10000, 100000, 1e6]
     candTables = createCandidateTables(data, model, races, dollarlist)
+    raceTable = createBaselineRaceTable(data, model)
+    raceTable.to_csv(cfg.precalc_race_data)
     candTables.to_csv(cfg.precalc_cand_data)
 
 def createBaselineRaceTable(data, model=None):
@@ -152,5 +155,5 @@ def raceModel(candGroup, model):
         candGroup['PRED_VOTE_PCT'] = a
     return candGroup
 
-
-preCalc()
+if __name__ == '__main__':
+    preCalc()

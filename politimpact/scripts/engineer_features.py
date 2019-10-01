@@ -108,8 +108,6 @@ def engineerFeatures(start_date=None, end_date=None):
     return (dfCand, dfRace, dfMoney)
 
 if __name__ == '__main__':
-    from politimpact import config as cfg
-
     dfCand, dfRace, dfMoney = engineerFeatures(end_date = '2016-12-31')
 
     # Save
