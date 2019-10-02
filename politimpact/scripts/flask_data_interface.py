@@ -2,8 +2,10 @@ from datetime import datetime
 import pandas as pd
 from dateutil.parser import parse
 from collections import defaultdict
+from math import copysign
 import politimpact.config as cfg
 from politimpact.scripts.pre_calc import preCalc
+from numpy import sign
 
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']
@@ -71,16 +73,45 @@ def filterResults(data, races, user_inputs, output_count = 5, ):
                     'web_link': "https://www.google.com/"
                     }
     """
+
+    # Find races where nobody in the top 2 is on the same side of the ideological spectrum as the user
     user_party = user_inputs['user_party']
-    print(user_party)
-    mask = (races['WINNER_PARTY_NAME']!=user_party) & (races['RUNNER_UP_PARTY_NAME']!=user_party)
-    temp = races[mask]
-    print(temp)
+    temp = races.copy().apply(lambda x: not partyMatch(user_party, x), axis =1)
+    myRaces = races[temp].reset_index().set_index(race_key)
+
+    # pick candidates in those races
+    data = data.reset_index().set_index(race_key)
+    myCands = data[data.index.isin(myRaces.index)]
+    print(myCands)
+
+partyLean ={
+    'establishment democratic': -0.4,
+    'green': -0.8,
+    'democratic': -0.7,
+    'libertarian': 0.5,
+    'republican': 0.7,
+    'no party preference': 0,
+    'independent': 0
+}
+
+def partyMatch(user_party, race):
+    lean1 = partyLean.get(race['WINNER_PARTY_NAME'].lower(), 0)
+    lean2 = partyLean.get(race['RUNNER_UP_PARTY_NAME'].lower(), 0)
+    userLean = partyLean.get(user_party.lower(), 0)
+    if (sign(lean1) == sign(userLean)) or (sign(lean2) == sign(userLean)):
+        # Somebody from your party is in the top 2! No need for extra money
+        # TODO: improve this.
+        return True
+    else:
+        # Your party has no representation in the top 2! Fund fund fund!
+        return False
+
 
 if __name__ == '__main__':
     user_inputs = {
         'user_party': 'Democratic',
         'user_today': None,
-        'user_budget': None
+        'user_budget': None,
+        'user_pref' : None
     }
     process(user_inputs)

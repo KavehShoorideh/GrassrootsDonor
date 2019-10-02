@@ -105,7 +105,7 @@ def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
                 newFacts = addMoney(these_cands, row.Index, donation)
                 modelResults = raceModel(newFacts, model)
                 modelResults = findRanking(modelResults)
-                newResults = modelResults.copy()[['PRED_VOTE_PCT', 'RANK', 'WINS']].reset_index()
+                newResults = modelResults.copy()[['PARTY_NAME', 'PRED_VOTE_PCT', 'RANK', 'WINS']].reset_index()
                 resultsList2.append(newResults.copy())
             allResults = pd.concat(resultsList2, keys=dollarlist, names=['DONATION', 'ROW'])
             allResults = allResults.droplevel(level='ROW')
