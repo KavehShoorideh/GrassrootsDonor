@@ -18,6 +18,7 @@ def engineerFeatures(start_date=None, end_date=None):
         end_date = parse(end_date)
 
     print('Engineering features.')
+    print(f'Start date: {start_date} \n End date: {end_date}')
 
     # Set primary keys for races and candidates
     race_key = ['CONTEST_NAME', 'ELECTION_DATE']
@@ -56,11 +57,13 @@ def engineerFeatures(start_date=None, end_date=None):
     dfRace['LEGISLATURE'] = dfRace.CONTEST_NAME.str.contains(r'(State Assembly)|(State Senate)', na=True)
     dfRace = dfRace[(dfRace.LEGISLATURE == 1)]
 
+
     # Remerge to get rid of no_contest races or non legislature races
     dfCand = pd.merge(dfCand,
                       dfRace,
                       left_on=race_key,
                       right_on=race_key, how='inner')
+
 
     # encode incumbent flag and write_in flag
     dfCand['INCUMBENT_FLAG'] = dfCand.INCUMBENT_FLAG.replace({'Y': 1, 'N': 0})
@@ -73,38 +76,37 @@ def engineerFeatures(start_date=None, end_date=None):
     # Find number of candidates running
     candCount = dfCand.groupby(race_key).agg(CANDIDATE_COUNT=('CANDIDATE_NAME', 'count'))
     dfRace = pd.merge(dfRace, candCount, left_on=race_key, right_on=race_key, how='left')
-    dfRace = dfRace[dfRace['CANDIDATE_COUNT'] > 2]
+
+
+    # We previously dropped these races, but we'll drop them later instead.
+    # dfRace = dfRace[dfRace['CANDIDATE_COUNT'] > 2]
 
     # Find total money raised in race and re-merge back into main race frame
+    # Fillna is used to fill races where there was no money raised (usually 2-sided races)
     totalRace = dfMoney.groupby(race_key).agg(RACE_TOTAL_RAISED=('TRANSACTION_AMOUNT', 'sum')).reset_index()
-    # totalRace['ELECTION_DATE'] = pd.to_datetime(totalRace['ELECTION_DATE'])
-    dfRace = pd.merge(dfRace, totalRace, left_on=race_key, right_on=race_key, how='left')
+    dfRace = pd.merge(dfRace, totalRace, left_on=race_key, right_on=race_key, how='left').fillna(0)
+
 
     # Find total money raised by candidate and merge into candidates table
+    # Some candidates raised no money or had no entries in the calaccess database, so fillna is used.
     totalCand = dfMoney.groupby(cand_key).agg(CAND_TOTAL_RAISED=('TRANSACTION_AMOUNT', 'sum')).reset_index()
     dfCand = pd.merge(dfCand, totalCand, on=cand_key, how='left')
+    dfCand = dfCand.fillna(0)
 
-    # topTwoThreshold= totalCand.reset_index().sort_values(by='CAND_TOTAL_RAISED', ascending=False).groupby(race_key).head(2)
-    # dfRace = pd.merge(dfRace, topTwoThreshold, left_on=race_key, right_on=race_key, how='left')
-
-    dfRace_r = dfRace.set_index(race_key)
-    dfRace_r['RACE_VOTE_TOTAL'] = dfCand.groupby(race_key)['VOTE_TOTAL'].sum()
+    # The tables below should have no NaN values, or 0 values
+    dfRace_r = dfRace.set_index(race_key).copy()
+    dfRace_r['RACE_VOTE_TOTAL'] = dfCand.groupby(race_key)['VOTE_TOTAL'].sum().copy()
     dfRace = dfRace_r.reset_index()
+    # dfCand.to_csv('debugcand.csv')
+    # dfRace.to_csv('debugrace.csv')
     dfCand = pd.merge(dfCand, dfRace, on=race_key, how='left')
+    dfCand.to_csv('debugmerge.csv')
     dfCand['VOTE_SHARE'] = dfCand['VOTE_TOTAL'] / dfCand['RACE_VOTE_TOTAL']
-    #
-    #
-    # dfnew = dfCand.groupby(race_key).filter(lambda x: x.notna().all().all())
-    # dfCand = dfnew.reset_index(drop=True)  # reset index
-    #
-    # groups = dfCand.groupby(race_key)
-    # cands = dfCand.set_index(race_key)
-    # for name, group in groups:
-    #     # we are iterating through the groups here
-    #     myCands = cands.loc[name]
-    #     myCands.to_csv(cfg.dataDir / 'test.csv')
-    #     break
 
+    # TODO: find out why fillna is necessary here
+    # dfCand = dfCand.fillna(0)
+    dfRace = dfRace.fillna(0)
+    print('Done!')
     return (dfCand, dfRace, dfMoney)
 
 if __name__ == '__main__':

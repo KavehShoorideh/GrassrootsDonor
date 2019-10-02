@@ -54,6 +54,7 @@ def clean_data(votes_files, money_files):
         for y in names_votes:
             match = False
             result = fuzz.token_set_ratio(x, y)
+            # 80 seemed to work well and matches are near perfect
             if result > 80:
                 match = True
                 name_mapping[x] = y

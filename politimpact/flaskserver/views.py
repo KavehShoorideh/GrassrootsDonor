@@ -1,6 +1,5 @@
 from flask import render_template, request
 from politimpact.flaskserver import app
-from politimpact import config as cfg
 from politimpact.scripts.flask_data_interface import process
 
 @app.route('/')
@@ -13,11 +12,9 @@ def user_input():
 def make_recommendation():
     # pull fields from request
     user_party = request.args.get('user-party')
-    user_budget = request.args.get('user-budget')
-    # user_today = request.args.get('user_today')
-    user_today = None
-    user_inputs = dict(user_party=user_party, user_budget=user_budget, user_today=user_today)
-    warnings = []
+    user_priority = request.args.get('user_priority')
+    user_today = request.args.get('user_today')
+    user_inputs = dict(user_party=user_party, user_priority=user_priority, user_today=user_today)
     try:
         recommendations = process(user_inputs)
         if recommendations:

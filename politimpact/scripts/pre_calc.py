@@ -8,10 +8,11 @@ from joblib import load, dump
 import numpy as np
 from politimpact.scripts.engineer_features import engineerFeatures
 pd.set_option('display.max_rows', 500)
+pd.options.mode.chained_assignment = None  # default='warn'
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']
 
-def preCalc(user_party=None, user_today=None, user_budget=None):
+def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
     """
     :param user_party: user's selected party; TODO: use to speed up race processing.
     :param user_today: Simulated date in 2018
@@ -22,8 +23,8 @@ def preCalc(user_party=None, user_today=None, user_budget=None):
 
     if user_today is None:
         end_date = parse('2018-12-31')
-    elif isinstance(end_date, str):
-        end_date = parse(end_date)
+    elif isinstance(user_today, str):
+        end_date = parse(user_today)
 
     print("REMEMBER TO FIX LOG SCALE!!!")
     model = load(cfg.linRegModel)
@@ -36,8 +37,12 @@ def preCalc(user_party=None, user_today=None, user_budget=None):
     dollarlist = [1, 10, 100, 1000, 10000, 100000, 1e6]
     candTables = createCandidateTables(data, model, races, dollarlist)
     raceTable = createBaselineRaceTable(data, model)
-    raceTable.to_csv(cfg.precalc_race_data)
-    candTables.to_csv(cfg.precalc_cand_data)
+
+    if not live:
+        raceTable.to_csv(cfg.precalc_race_data)
+        candTables.to_csv(cfg.precalc_cand_data)
+    if live:
+        return candTables, raceTable
 
 def createBaselineRaceTable(data, model=None):
     """
@@ -88,40 +93,44 @@ def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
     cand_key = [*race_key, 'CANDIDATE_NAME']
     # from all the races, select only those who have more than 2 ppl running;
     # i.e. select those with the same index as  the races table we created (races doesn't have cand data)
-    myRaces = races.reset_index().set_index(race_key).index
-    myRaces = data.reset_index().set_index(race_key).loc[myRaces]
-
+    myRaceIndices = races.reset_index().set_index(race_key).index
+    myRaces = data.reset_index(drop=True).set_index(race_key).loc[myRaceIndices]
     grouping = myRaces.groupby(race_key)
-    resultsList0 = []
+    raceList = []
     for name, group in grouping:
         # Looping through races
-        these_cands = group.reset_index().set_index(cand_key)
-        resultsList1 = []
-        for row in these_cands.itertuples():
+        # these_cands = group.reset_index().set_index(cand_key).copy()
+        candList = []
+        for row in group.itertuples():
             # Loop through ALL candidates in each race
-            oldResults = raceModel(these_cands, model)['PRED_VOTE_PCT'].reset_index()
-            resultsList2 = []
+            # Row is a named tuple, so we can access the names, and also the Index, like below
+            #Pandas(Index=('State Assembly Member District 1', Timestamp('2018-06-05 00:00:00')),
+            #      CANDIDATE_NAME='JENNY O CONNELL-NOWAIN', PARTY_NAME='No Party Preference', ...
+            candName = row.CANDIDATE_NAME
+            dollarList = []
             for donation in dollarlist:
-                newFacts = addMoney(these_cands, row.Index, donation)
-                modelResults = raceModel(newFacts, model)
-                modelResults = findRanking(modelResults)
-                newResults = modelResults.copy()[['PARTY_NAME', 'PRED_VOTE_PCT', 'RANK', 'WINS']].reset_index()
-                resultsList2.append(newResults.copy())
-            allResults = pd.concat(resultsList2, keys=dollarlist, names=['DONATION', 'ROW'])
-            allResults = allResults.droplevel(level='ROW')
-            allResults = allResults.reset_index().set_index([*cand_key, 'DONATION']).sort_index()
-            allResults = findMinWinDonation(allResults)
-            resultsList1.append(allResults.copy())
-        allResults = pd.concat(resultsList1)
-        resultsList0.append(allResults.copy())
-    allResults = pd.concat(resultsList0)
+                # these_cands['FAVORITE'] = these_cands.loc[row.Index, 'CANDIDATE_NAME']
+                newFacts = addMoney(group, row.Index, candName, donation)
+                newResults = raceModel(newFacts, model)
+                newResults = findRanking(newResults)
+                newResults = newResults[['CANDIDATE_NAME', 'PARTY_NAME', 'PRED_VOTE_PCT', 'RANK', 'WINS', 'FAVORITE', 'CAND_TOTAL_RAISED']]
+                newResults = newResults.reset_index().set_index([*race_key, 'FAVORITE'])
+                dollarList.append(newResults.copy())
+            candResults = pd.concat(dollarList, keys=dollarlist, names=['DONATION'])
+            candResults['MIN_DONATION'] = findMinWinDonation(candResults, candName)
+            candList.append(candResults.copy())
+        raceResults = pd.concat(candList)
+        raceList.append(raceResults.copy())
+    allResults = pd.concat(raceList)
     return allResults
 
-def addMoney(candGroup, cand_index, amount):
+def addMoney(candGroup, cand_index, candName, amount):
     """Function to add and transform money to a candidate's race info, and return new candidate group dataframe"""
     # REMEMBER TO FIX LOG SCALE IF APPLYING LOG FOR MONEY
     candGroup = candGroup.copy()
-    candGroup.loc[cand_index, 'CAND_TOTAL_RAISED'] = amount + candGroup.loc[cand_index, 'CAND_TOTAL_RAISED']
+    candGroup.loc[candGroup['CANDIDATE_NAME'] == candName, 'CAND_TOTAL_RAISED'] = amount + candGroup.loc[candGroup['CANDIDATE_NAME'] == candName, 'CAND_TOTAL_RAISED']
+    candGroup['FAVORITE'] = candName
+    candGroup.loc[candGroup['CANDIDATE_NAME'] == candName, 'FAVORITE'] = candName
     return candGroup
 
 def findRanking(candGroup):
@@ -135,17 +144,21 @@ def findImpact(candGroup):
     """Take in candidate group with results (with PRED_VOTE_PCT column) and return impact (Delta %win / $) appended"""
     pass
 
-def findMinWinDonation(candGroup):
-    """Take in candidate group with results (with PRED_VOTE_PCT column) and return impact (Delta %win / $) appended"""
-    temp = candGroup.copy()
-    def myFunc(x):
-        return x['WINS'].idxmax()[3]
-    temp['MIN_DONATION'] = temp.groupby([*cand_key]).apply(myFunc)
-    return temp
+def findMinWinDonation(candGroup, candName):
+    """Take in candidate group with results (with PRED_VOTE_PCT column) and return min dollars to win"""
+    temp = candGroup.copy().reset_index()
+    mask = (temp['CANDIDATE_NAME'] == candName) & (temp['WINS'] == True)
+    temp = temp[mask]['DONATION']
+    if temp.empty:
+        output = np.nan
+    else:
+        output = temp.min()
+    return output
+
 
 def raceModel(candGroup, model):
     """ Take in a candidate group, append a column 'PRED_VOTE_PCT' with predicted percentage of votes"""
-    trial = True
+    trial = False
     # split group, apply
     if trial:
         # shoot out a bunch of random results
@@ -153,6 +166,10 @@ def raceModel(candGroup, model):
         a /= a.sum()
         candGroup = candGroup.copy()
         candGroup['PRED_VOTE_PCT'] = a
+    else:
+        myFeatures = ['INCUMBENT_FLAG', 'PARTY_LEAN', 'CAND_TOTAL_RAISED', 'RACE_TOTAL_RAISED', 'RACE_VOTE_TOTAL']
+        candGroup['PRED_VOTE_PCT'] = model.predict(candGroup[myFeatures])
+        candGroup['PRED_VOTE_PCT'] = candGroup['PRED_VOTE_PCT'] / candGroup['PRED_VOTE_PCT'].sum()
     return candGroup
 
 if __name__ == '__main__':

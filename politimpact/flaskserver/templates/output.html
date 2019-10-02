@@ -30,16 +30,16 @@
 
     <div class = "container">
 
-       <form  action="/output" method="GET">
+        <form  action="/output" method="GET">
             <div class="form-group">
-                <label for="user-party">What political party?</label>
-                <input type="text" id="user-party" name="user-party" placeholder="e.g. Democratic or Republican">
+                <label for="user_today">2018 Date to simulate</label>
+                <input type="text" id="user_today" name="user_today" placeholder="Leave empty for all 2018">
                 <br>
-                <label for="budget">What's your budget?</label>
-                <input type="text" id="user-budget" name="user-budget" placeholder="$4700 max per candidate">
+                <label for="user_party">What political party do you support?</label>
+                <input type="text" id="user_party" name="user_party" placeholder="e.g. Democratic or Republican">
                 <br>
-                <label for="minority">Minorities?</label>
-                <input type="text" id="user-minority" name="user-minority", placeholder="e.g. Women, LGBT, ...">
+                <label for="user_priority">Prioritize winning chance or ideology alignment </label>
+                <input type="text" id="user_priority" name="user_priority">
                 <br>
             </div>
 
@@ -58,25 +58,27 @@
     <div class="container">
       <div class="starter-template">
         <h3>Results:</h3>
-        <p class="lead">If X many people donate Y amount, this could be the impact!</p>
+        <p class="lead">These are the races where you could have an impact!</p>
       </div>
 
       <table class="table table-hover">
       <tr>
-          <th>Candidate</th>
           <th>Office</th>
-          <th>Win Chance Before</th>
-          <th>Win Chance After</th>
-          <th>Impact</th>
+          <th>Candidate</th>
+<!--          <th>Win Chance Before</th>-->
+          <th>Predicted vote share</th>
+          <th>Donation Required</th>
+          <th>Ideology Alignment Score</th>
           <th>Party</th>
           <th>Campaign Site Link<th></tr>
       {% for record in recommendations %}
-      <tr><td>{{ record['name']}}</td>
-          <td>{{ record['office']}}</td>
-          <td>{{ record['win_chance_before'] }}</td>
-          <td>{{ record['win_chance_after'] }}</td>
-          <td>{{ record['impact'] }}</td>
-          <td>{{ record['party'] }}</td>
+      <tr><td>{{ record['CONTEST_NAME']}}</td>
+          <td>{{ record['CANDIDATE_NAME']}}</td>
+<!--          <td>{{ record['win_chance_before'] }}</td>-->
+          <td>{{ record['PRED_VOTE_PCT'] }}</td>
+          <td>{{ record['MIN_DONATION'] }}</td>
+          <td>{{ record['IDEOLOGY_ALIGNMENT'] }}</td>
+          <td>{{ record['PARTY_NAME'] }}</td>
           <td><a href={{ record['web_link'] }}>{{ record['web_link'] }}</a></td>
       </tr>
       {% endfor %}
