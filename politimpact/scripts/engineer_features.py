@@ -77,15 +77,10 @@ def engineerFeatures(start_date=None, end_date=None):
     candCount = dfCand.groupby(race_key).agg(CANDIDATE_COUNT=('CANDIDATE_NAME', 'count'))
     dfRace = pd.merge(dfRace, candCount, left_on=race_key, right_on=race_key, how='left')
 
-
-    # We previously dropped these races, but we'll drop them later instead.
-    # dfRace = dfRace[dfRace['CANDIDATE_COUNT'] > 2]
-
     # Find total money raised in race and re-merge back into main race frame
     # Fillna is used to fill races where there was no money raised (usually 2-sided races)
     totalRace = dfMoney.groupby(race_key).agg(RACE_TOTAL_RAISED=('TRANSACTION_AMOUNT', 'sum')).reset_index()
     dfRace = pd.merge(dfRace, totalRace, left_on=race_key, right_on=race_key, how='left').fillna(0)
-
 
     # Find total money raised by candidate and merge into candidates table
     # Some candidates raised no money or had no entries in the calaccess database, so fillna is used.
