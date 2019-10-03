@@ -29,35 +29,29 @@
     </div>
 
     <div class = "container">
-
-         <div class="form-group">
-          <label for="MyLabel">What type of candidate do you want to support?</label>
-          <select name='user_party' style="width: 150px;">
+        <form  action="/output" method="GET">
+            <div class="form-group">
+          <label for="user_party">I want to support a:</label>
+          <select id="user_party", name='user_party' style="width: 150px;">
               <option value='republican'>  Republican </option>
-              <option value='ne_republican'> Non-Establishment Republican</option>
+<!--              <option value='ne_republican'> Non-Establishment Republican</option>-->
               <option value='democrat'>  Democrat </option>
-              <option value='ne_democratic'> Non-Establishment Democrat</option>
-
+<!--              <option value='ne_democratic'> Non-Establishment Democrat</option>-->
             </select>
         </div>
-
             <div class="form-group">
-          <label for="MyLabel">How should I prioritize results?</label>
-          <select name='user_party' style="width: 150px;">
+          <label for="user_priority">My priority is:</label>
+          <select id='user_priority', name='user_priority' style="width: 300px;">
                 <option value='ideology'>  Ideological Alignment </option>
                 <option value='winning'> Likelihood of Winning</option>
             </select>
         </div>
-
-
         <div>
           <button type="submit" class="btn btn-default btn-lg">Find California Legislature Candidates!</button>
         </div>
-
-
-
       </form>
     </div>
+
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="static/js/bootstrap.min.js"></script>
