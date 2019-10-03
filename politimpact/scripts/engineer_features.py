@@ -101,13 +101,15 @@ def engineerFeatures(start_date=None, end_date=None):
     # TODO: find out why fillna is necessary here
     # dfCand = dfCand.fillna(0)
     dfRace = dfRace.fillna(0)
-    print('Done!')
     return (dfCand, dfRace, dfMoney)
 
 if __name__ == '__main__':
+    print("Engineering Features...")
     dfCand, dfRace, dfMoney = engineerFeatures(end_date = '2016-12-31')
 
     # Save
     # dfMoney.to_csv(cfg.training_money_file)
     # dfRace.to_csv(cfg.training_race_file)
     dfCand.to_csv(cfg.training_candidate_file)
+    print('Done!')
+

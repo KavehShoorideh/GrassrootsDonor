@@ -31,13 +31,22 @@ def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
 
     # Engineer features
     data, _, _= engineerFeatures(start_date = '2017-01-01', end_date = end_date)
+    print("Done feature engineering, calculating results:")
 
     # create candidate table
-    races = createBaselineRaceTable(data, model)
-    dollarlist = [1, 10, 100, 1000, 10000, 100000, 1e6]
-    candTables = createCandidateTables(data, model, races, dollarlist)
-    raceTable = createBaselineRaceTable(data, model)
+    # races, baselineResults = createBaselineRaceTable(data, model)
+    dollarlist = [1000, 10000, 100000, 1e6]
+    raceTable, baselineResults = createBaselineRaceTable(data, model)
+    candTables = createCandidateTables(data, model, raceTable, dollarlist)
 
+    temp = baselineResults.filter(items = [*cand_key, 'PRED_VOTE_PCT'])\
+        .rename(columns={'PRED_VOTE_PCT': 'VOTE_PCT_BEFORE'})
+    print(temp)
+    candTables = candTables.reset_index()
+    candTables = pd.merge(left=candTables, right=temp, left_on=[*race_key,'FAVORITE'], right_on=cand_key)
+    candTables = candTables.drop('CANDIDATE_NAME_y', axis=1)
+    candTables = candTables.rename(columns={'CANDIDATE_NAME_x': 'CANDIDATE_NAME'})
+    print(candTables)
     if not live:
         raceTable.to_csv(cfg.precalc_race_data)
         candTables.to_csv(cfg.precalc_cand_data)
@@ -60,11 +69,13 @@ def createBaselineRaceTable(data, model=None):
     race_columns = [*race_key, 'WINNER', 'WINNER_PARTY_NAME',
                     'WINNER_PARTY_LEAN', 'RUNNER_UP', 'RUNNER_UP_PARTY_NAME', 'RUNNER_UP_PARTY_LEAN']
     races = pd.DataFrame(columns=race_columns)
+    # baselineResults = pd.DataFrame(columns=race_columns)
+    resultsList = []
     for key, group in groups:
 
         # Call model for each group
         output = raceModel(group, model)
-
+        resultsList.append(output)
         top = output.nlargest(2, 'PRED_VOTE_PCT')[[*cand_key, 'PARTY_NAME', 'PARTY_LEAN', 'PRED_VOTE_PCT']]
 
         this_race = top.iloc[0].loc[[*race_key]]
@@ -76,7 +87,8 @@ def createBaselineRaceTable(data, model=None):
             row = pd.Series([*this_race, *winner, *runner_up], index=race_columns)
             races = races.append(row, ignore_index=True).copy()
     #     races.to_csv(cfg.flask_race_file)
-    return races
+    baselineResults = pd.concat(resultsList)
+    return races, baselineResults
 
 
 def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):

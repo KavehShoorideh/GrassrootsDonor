@@ -29,6 +29,7 @@
     </div>
 
     <div class = "container">
+        <center>
         <form  action="/output" method="GET">
             <div class="form-group">
           <label for="user_party">I want to support a:</label>
@@ -50,6 +51,7 @@
           <button type="submit" class="btn btn-default btn-lg">Find California Legislature Candidates!</button>
         </div>
       </form>
+            </center>
     </div>
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -60,27 +62,32 @@
     <div class="container">
       <div class="starter-template">
         <h3>Results:</h3>
-        <p class="lead">These are the races where you could have an impact!</p>
+        <p class="lead">
+            These are the races where you could have an impact!
+        </p>
       </div>
 
       <table class="table table-hover">
       <tr>
           <th>Office</th>
           <th>Candidate</th>
-<!--          <th>Win Chance Before</th>-->
-          <th>Predicted vote share</th>
-          <th>Donation Required</th>
-          <th>Ideology Alignment Score</th>
           <th>Party</th>
+<!--          <th>Ideology Alignment Score (1 is best) </th>-->
+          <th>Vote Share Now</th>
+          <th>Donation to Win Primary</th>
+          <th>Vote Share After Donation</th>
+          <th>Impact of Donation (as % of votes)</th>
+<!--          <th>Win Chance Before</th>-->
           <th>Campaign Site Link<th></tr>
       {% for record in recommendations %}
       <tr><td>{{ record['CONTEST_NAME']}}</td>
           <td>{{ record['CANDIDATE_NAME']}}</td>
-<!--          <td>{{ record['win_chance_before'] }}</td>-->
-          <td>{{ record['PRED_VOTE_PCT'] }}</td>
-          <td>{{ record['MIN_DONATION'] }}</td>
-          <td>{{ record['IDEOLOGY_ALIGNMENT'] }}</td>
           <td>{{ record['PARTY_NAME'] }}</td>
+<!--          <td>{{ record['IDEOLOGY_ALIGNMENT'] }}</td>-->
+          <td>{{ '0.0f' % record['VOTE_PCT_BEFORE'] | float}}%</td>
+          <td>{{ record['MIN_DONATION'] }}</td>
+          <td>{{ '0.0f' % record['VOTE_PCT_AFTER']| float}}%</td>
+          <td>{{ '0.0f' % (record['VOTE_PCT_AFTER'] - record['VOTE_PCT_BEFORE']) | float}}%</td>
           <td><a href={{ record['web_link'] }}>{{ record['web_link'] }}</a></td>
       </tr>
       {% endfor %}

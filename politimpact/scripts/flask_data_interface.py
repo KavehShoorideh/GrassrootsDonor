@@ -24,7 +24,7 @@ def clean(user_inputs):
     print(user_inputs)
     if user_inputs['user_party'] is None:
         user_inputs['user_party'] = 'Republican'
-    if user_inputs['user_today'] == '':
+    if user_inputs['user_today'] == '' or user_inputs['user_today'] is None:
         user_inputs['user_today'] = '2018-12-31'
     if user_inputs['user_priority'] == '' or user_inputs['user_priority'].lower() == 'ideology':
         # assume ideology first
