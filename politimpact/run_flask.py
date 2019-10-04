@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from politimpact.flaskserver import app
+from flaskserver import app
 # app.run(debug = True)
 app.run(
     host = '127.0.0.1',
