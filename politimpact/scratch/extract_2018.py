@@ -1,5 +1,4 @@
 import os
-os.chdir(r"C:\Users\kaveh\OneDrive\Code Repos\Data Science\Insight\PolitImpact\politimpact")
 from politimpact import config as cfg
 import pandas as pd
 

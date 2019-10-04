@@ -1,5 +1,4 @@
 import os
-os.chdir(r"C:\Users\kaveh\OneDrive\Code Repos\Data Science\Insight\PolitImpact\politimpact")
 from datetime import datetime
 import pandas as pd
 from dateutil.parser import parse

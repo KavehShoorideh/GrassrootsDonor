@@ -1,5 +1,4 @@
 import os
-os.chdir(r"C:\Users\kaveh\OneDrive\Code Repos\Data Science\Insight\PolitImpact\politimpact")
 from pathlib import Path
 from configparser import ConfigParser
 from sklearn import preprocessing

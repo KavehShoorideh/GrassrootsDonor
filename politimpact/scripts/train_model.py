@@ -1,5 +1,4 @@
 import os
-os.chdir(r"C:\Users\kaveh\OneDrive\Code Repos\Data Science\Insight\PolitImpact\politimpact")
 from datetime import datetime
 import politimpact.config as cfg
 from politimpact.scripts.engineer_features import engineerFeatures
