@@ -3,8 +3,8 @@ import pandas as pd
 from dateutil.parser import parse
 from collections import defaultdict
 from math import copysign
-import politimpact.config as cfg
-from politimpact.scripts.pre_calc import preCalc
+import grassrootsdonor.config as cfg
+from grassrootsdonor.scripts.pre_calc import preCalc
 from numpy import sign
 
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']

@@ -3,9 +3,9 @@ import pandas as pd
 from datetime import datetime
 from collections import defaultdict
 
-from politimpact import helper
+from grassrootsdonor import helper
 
-import politimpact.config as cfg
+import grassrootsdonor.config as cfg
 
 
 def clean_data(votes_files, money_files):

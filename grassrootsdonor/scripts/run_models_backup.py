@@ -1,6 +1,6 @@
 import os
-from politimpact import config as cfg
-from politimpact.scripts import race_model
+from grassrootsdonor import config as cfg
+from grassrootsdonor.scripts import race_model
 from datetime import datetime
 from joblib import load
 import pandas as pd

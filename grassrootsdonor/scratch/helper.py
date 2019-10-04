@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from collections import defaultdict
 import dateutil.parser
-import politimpact.config as cfg
+import grassrootsdonor.config as cfg
 
 # Create a mapping of transaction date to election date
 def nextElection(thisDate, electionDates):

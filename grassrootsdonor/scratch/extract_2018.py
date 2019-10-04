@@ -1,5 +1,5 @@
 import os
-from politimpact import config as cfg
+from grassrootsdonor import config as cfg
 import pandas as pd
 
 """ Extracts flask data files from training data files for 2018"""

@@ -1,6 +1,6 @@
 from flask import render_template, request
-from politimpact.flaskserver import app
-from politimpact.scripts.flask_data_interface import process
+from grassrootsdonor.flaskserver import app
+from grassrootsdonor.scripts.flask_data_interface import process
 
 @app.route('/')
 @app.route('/index')

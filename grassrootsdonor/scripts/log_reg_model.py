@@ -1,4 +1,4 @@
-import politimpact.config as cfg
+import grassrootsdonor.config as cfg
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split

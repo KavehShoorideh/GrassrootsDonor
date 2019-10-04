@@ -2,7 +2,7 @@ from datetime import datetime
 import pandas as pd
 from dateutil.parser import parse
 from collections import defaultdict
-import politimpact.config as cfg
+import grassrootsdonor.config as cfg
 
 
 def engineerFeatures(start_date=None, end_date=None):

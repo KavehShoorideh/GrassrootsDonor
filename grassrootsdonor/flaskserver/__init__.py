@@ -1,3 +1,3 @@
 from flask import Flask
 app = Flask(__name__)
-from politimpact.flaskserver import views
+from grassrootsdonor.flaskserver import views

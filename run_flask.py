@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from flaskserver import app
+from grassrootsdonor.flaskserver import app
 # app.run(debug = True)
 app.run(
     host = '127.0.0.1',
