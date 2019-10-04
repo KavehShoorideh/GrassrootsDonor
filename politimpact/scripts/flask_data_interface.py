@@ -26,9 +26,9 @@ def clean(user_inputs):
         user_inputs['user_party'] = 'Republican'
     if user_inputs['user_today'] == '' or user_inputs['user_today'] is None:
         user_inputs['user_today'] = '2018-12-31'
-    if user_inputs['user_priority'] == '' or user_inputs['user_priority'].lower() == 'ideology':
-        # assume ideology first
-        user_inputs['user_priority'] = True
+    # if user_inputs['user_priority'] == '' or user_inputs['user_priority'].lower() == 'ideology':
+    #     # assume ideology first
+    #     user_inputs['user_priority'] = True
     elif user_inputs['user_priority'].lower() == 'winning':
         user_inputs['user_priority'] = False
 
@@ -95,10 +95,14 @@ def filterResults(data, races, user_inputs, output_count = 5):
 
     # Make sure the candidate we're looking at is the favorite
     myCands = myCands[myCands['FAVORITE'] == myCands['CANDIDATE_NAME']]
-    baseline = myCands[myCands['DONATION'] == 1].copy()
+    # baseline = myCands[myCands['DONATION'] == 1].copy()
 
     # Extract min donation amounts and win prob
     myCands = selectMinDonation(myCands)
+
+    myCands = myCands.rename(columns = {'PRED_VOTE_PCT' : 'VOTE_PCT_AFTER'})
+
+    myCands['IMPACT'] = (myCands['VOTE_PCT_AFTER'] - myCands['VOTE_PCT_BEFORE']) / myCands['DONATION']
 
     # Calculate ideology matching
     myCands['IDEOLOGY_ALIGNMENT'] = myCands.copy().apply(lambda x: ideologyMatch(user_party, x), axis=1)
@@ -106,23 +110,20 @@ def filterResults(data, races, user_inputs, output_count = 5):
     # Sort
     myCands = mySort(myCands, user_inputs['user_priority'])
 
-    # find baseline chances
+    # Drop negative numbers!
+    mask = (myCands['VOTE_PCT_BEFORE'] > 0) & (myCands['VOTE_PCT_AFTER'] > myCands['VOTE_PCT_BEFORE'])
+    myCands = myCands[mask]
 
-
-    # myCands['BASELINE_VOTE_PCT'] = myCands.apply(lambda x: baseline[baseline['CANDIDATE_NAME'] == x['CANDIDATE_NAME']], axis=1)
-    print(myCands)
-    # Drop extra columns
-    # myCands = myCands.drop(columns=['FAVORITE', 'WINS', 'DONATION'])
     myCands = myCands.reset_index()
     myCands = myCands.head(10)
     recommendations = myCands.to_dict('records')
-    # Reformat percentage
     return recommendations
 
 partyLean ={
     'establishment democratic': -0.4,
     'green': -0.8,
     'democratic': -0.7,
+    'democrat': -0.7,
     'libertarian': 0.5,
     'republican': 0.7,
     'no party preference': 0,
@@ -152,14 +153,15 @@ def ideologyMatch(user_party, row):
     output = 1 - abs(userLean - partyLean.get(row['PARTY_NAME'].lower(), 0))
     return output
 
-def mySort(data, ideologyFirst=False):
+def mySort(data, user_priority):
     temp = data.copy()
-    order = ['MIN_DONATION', 'IDEOLOGY_ALIGNMENT']
-    ascending = [True, False]
-    if ideologyFirst:
-        order = order[::-1]
-        ascending = ascending[::-1]
-    temp = temp[temp['IDEOLOGY_ALIGNMENT'] > 0].sort_values(order, ascending = ascending )
+    # Don't recommend other party
+    temp = temp[temp['IDEOLOGY_ALIGNMENT'] > 0]
+
+    if user_priority == 'impact':
+        temp = temp.sort_values(['IMPACT', 'IDEOLOGY_ALIGNMENT', 'MIN_DONATION'], ascending = False)
+    if user_priority == 'ideology':
+        temp = temp.sort_values(['IDEOLOGY_ALIGNMENT', 'IMPACT', 'MIN_DONATION'], ascending=False)
     return temp
 
 if __name__ == '__main__':

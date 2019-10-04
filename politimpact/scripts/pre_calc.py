@@ -35,18 +35,21 @@ def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
 
     # create candidate table
     # races, baselineResults = createBaselineRaceTable(data, model)
-    dollarlist = [1000, 10000, 100000, 1e6]
+    dollarlist = [1000, 10000, 20000, 50000, 100000, 2e5, 5e5, 1e6]
+
     raceTable, baselineResults = createBaselineRaceTable(data, model)
     candTables = createCandidateTables(data, model, raceTable, dollarlist)
 
+    # Add in VOTE_PCT_BEFORE
     temp = baselineResults.filter(items = [*cand_key, 'PRED_VOTE_PCT'])\
         .rename(columns={'PRED_VOTE_PCT': 'VOTE_PCT_BEFORE'})
-    print(temp)
     candTables = candTables.reset_index()
     candTables = pd.merge(left=candTables, right=temp, left_on=[*race_key,'FAVORITE'], right_on=cand_key)
     candTables = candTables.drop('CANDIDATE_NAME_y', axis=1)
     candTables = candTables.rename(columns={'CANDIDATE_NAME_x': 'CANDIDATE_NAME'})
-    print(candTables)
+
+    candTables = candTables[candTables['FAVORITE'] == candTables['CANDIDATE_NAME']]
+
     if not live:
         raceTable.to_csv(cfg.precalc_race_data)
         candTables.to_csv(cfg.precalc_cand_data)
