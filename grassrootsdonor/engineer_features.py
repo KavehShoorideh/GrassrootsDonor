@@ -98,7 +98,6 @@ def engineerFeatures(start_date=None, end_date=None):
     # dfCand.to_csv('debugcand.csv')
     # dfRace.to_csv('debugrace.csv')
     dfCand = pd.merge(dfCand, dfRace, on=race_key, how='left')
-    dfCand.to_csv('debugmerge.csv')
     dfCand['VOTE_SHARE'] = dfCand['VOTE_TOTAL'] / dfCand['RACE_VOTE_TOTAL']
 
     # TODO: find out why fillna is necessary here
