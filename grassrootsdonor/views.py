@@ -52,7 +52,7 @@ def make_recommendation():
             # Some recommendations have been received!
             top_rec = recommendations[0]
             user_budget = f"${user_budget:,.0f}"
-            return render_template("output.html", recommendations=recommendations, user_budget = user_budget, the_result=len(recommendations))
+            return render_template("output.html", recommendations=recommendations, user_budget = user_budget, user_party=user_party, the_result=len(recommendations))
         else:
             print("No recommendations received!")
             return render_template("input.html")
