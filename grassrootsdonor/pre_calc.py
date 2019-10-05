@@ -1,11 +1,10 @@
-import os
-from datetime import datetime
 import pandas as pd
 from dateutil.parser import parse
 import grassrootsdonor.config as cfg
-from joblib import load, dump
+from joblib import load
 import numpy as np
-from grassrootsdonor.scripts.engineer_features import engineerFeatures
+from grassrootsdonor.engineer_features import engineerFeatures
+
 pd.set_option('display.max_rows', 500)
 pd.options.mode.chained_assignment = None  # default='warn'
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
@@ -187,4 +186,6 @@ def raceModel(candGroup, model):
     return candGroup
 
 if __name__ == '__main__':
+    os.chdir('..')
+
     preCalc()

@@ -3,6 +3,7 @@ import pandas as pd
 from dateutil.parser import parse
 from collections import defaultdict
 import grassrootsdonor.config as cfg
+import os
 
 
 def engineerFeatures(start_date=None, end_date=None):
@@ -33,6 +34,8 @@ def engineerFeatures(start_date=None, end_date=None):
     dfCand['ELECTION_DATE'] = pd.to_datetime(dfCand['ELECTION_DATE'])
     dfRace['ELECTION_DATE'] = pd.to_datetime(dfRace['ELECTION_DATE'])
     dfMoney['ELECTION_DATE'] = pd.to_datetime(dfMoney['ELECTION_DATE'])
+
+    print(dfCand.columns)
 
     dfMoney['TRANSACTION_DATE'] = pd.to_datetime(dfMoney['TRANSACTION_DATE'])
 
@@ -105,6 +108,7 @@ def engineerFeatures(start_date=None, end_date=None):
 
 if __name__ == '__main__':
     print("Engineering Features...")
+    os.chdir('..')
     dfCand, dfRace, dfMoney = engineerFeatures(end_date = '2016-12-31')
 
     # Save

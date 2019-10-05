@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import grassrootsdonor.config as cfg
 
 def fixName(name):
     """ Change lastname, firstname to firstname lastname"""
@@ -50,8 +51,7 @@ def clean_data(votes_files, money_files):
     dfMoney.dropna(subset=['Election','TransactionDate'], inplace=True)
     # Fix names
     dfMoney.loc[:, 'RecipientCandidateNameNormalized'] = dfMoney['RecipientCandidateNameNormalized'].str.upper()
-    dfMoney.loc[:, 'RecipientCandidateNameNormalized'] = dfMoney.loc[:, 'RecipientCandidateNameNormalized'].apply(
-        helper.fixName)
+    dfMoney.loc[:, 'RecipientCandidateNameNormalized'] = dfMoney.loc[:, 'RecipientCandidateNameNormalized'].apply(fixName)
 
     # Create name mapping and apply to match tables on name
     names_money = list(dfMoney['RecipientCandidateNameNormalized'].unique())
@@ -107,5 +107,7 @@ def clean_data(votes_files, money_files):
 
 
 if __name__ == '__main__':
+    os.chdir('..')
+
     tables = clean_data(cfg.votes_files, cfg.money_files)
     print('Done!')

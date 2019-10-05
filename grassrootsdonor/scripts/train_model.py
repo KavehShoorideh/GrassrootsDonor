@@ -1,20 +1,11 @@
-import os
-from datetime import datetime
 import grassrootsdonor.config as cfg
-from grassrootsdonor.scripts.engineer_features import engineerFeatures
 import pandas as pd
-import numpy as np
 import math
-from joblib import dump, load
-from sklearn import preprocessing
+from joblib import dump
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import KFold
-from sklearn import metrics
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-from grassrootsdonor.scripts.engineer_features import engineerFeatures
+from grassrootsdonor.engineer_features import engineerFeatures
 pd.set_option('display.max_rows', 500)
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']

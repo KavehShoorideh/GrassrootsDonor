@@ -1,6 +1,9 @@
 from pathlib import Path
-dataDir = Path('data')
-modelDir = Path('models')
+import os
+
+projectRoot = Path(os.getcwd()) / 'grassrootsdonor'
+dataDir = projectRoot / 'data'
+modelDir = projectRoot / 'models'
 
 
 # raw files
@@ -11,13 +14,13 @@ votes_2016_file = dataDir / 'votes_2016.xls'
 money_files = [money_2016_file, money_2018_file]
 votes_files = [votes_2016_file, votes_2018_file]
 
-# files for flask; user choice list
-flask_money_file = dataDir / 'flask_money_data.csv'
-flask_candidate_file = dataDir / 'flask_cand_data.csv'
-flask_race_file = dataDir / 'flask_race_data.csv'
+# # files for flask; user choice list
+# flask_money_file = dataDir / 'flask_money_data.csv'
+# flask_candidate_file = dataDir / 'flask_cand_data.csv'
+# flask_race_file = dataDir / 'flask_race_data.csv'
 
-flask_results_file = dataDir / 'flask_results_file.csv'
-flask_2018_data = dataDir / 'flask_2018_data.csv'
+# flask_results_file = dataDir / 'flask_results_file.csv'
+# flask_2018_data = dataDir / 'flask_2018_data.csv'
 precalc_cand_data = dataDir / 'precalc_2018_data.csv'
 precalc_race_data = dataDir / 'precalc_2018_races.csv'
 
@@ -30,8 +33,8 @@ training_candidate_file = dataDir / 'training_candidate_file.csv'
 training_money_file = dataDir / 'training_money_file.csv'
 
 # files for training models
-cleaned_race_file = dataDir / 'clean_race_file.csv'
-cleaned_candidate_file = dataDir / 'clean_candidate_file.csv'
+cleaned_race_file = dataDir / 'clean_races_file.csv'
+cleaned_candidate_file = dataDir / 'clean_candidates_file.csv'
 cleaned_money_file = dataDir / 'clean_money_file.csv'
 
 # logRegModel = modelDir / 'LinRegModel.joblib'

@@ -1,6 +1,6 @@
 from flask import render_template, request
 from grassrootsdonor.flaskserver import app
-from grassrootsdonor.scripts.flask_data_interface import process
+from grassrootsdonor.flask_data_interface import process
 
 @app.route('/')
 @app.route('/index')

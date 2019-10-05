@@ -1,10 +1,7 @@
-from datetime import datetime
 import pandas as pd
 from dateutil.parser import parse
-from collections import defaultdict
-from math import copysign
 import grassrootsdonor.config as cfg
-from grassrootsdonor.scripts.pre_calc import preCalc
+from grassrootsdonor.pre_calc import preCalc
 from numpy import sign
 
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
@@ -59,6 +56,7 @@ def process(user_inputs):
         # returns candidate table with results
         data, races = preCalc(**user_inputs, live=True)
     else:
+        print(cfg.precalc_race_data)
         data = pd.read_csv(cfg.precalc_cand_data,  index_col=0)
         races = pd.read_csv(cfg.precalc_race_data, index_col=0)
     recommendations = filterResults(data, races, user_inputs)
@@ -165,6 +163,8 @@ def mySort(data, user_priority):
     return temp
 
 if __name__ == '__main__':
+    os.chdir('..')
+
     user_inputs = {
         'user_party': 'Republican',
         'user_today': None,
