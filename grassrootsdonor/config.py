@@ -1,21 +1,8 @@
-import os
 from pathlib import Path
 from configparser import ConfigParser
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-import math
-from datetime import datetime
-from collections import defaultdict
-import pandas as pd
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
-pd.set_option('display.max_rows', 150)
 
 myConfig = ConfigParser()
 myConfig.read('config.ini')
-print(f'Running in {os.getcwd()}')
 print(f"Reading from configuration file 'config.ini'")
 # Reading from config.ini file returns extra single quotes, remove first using strip
 dataDir = Path(myConfig.get('paths', 'dataDir').strip('\''))
@@ -25,10 +12,10 @@ modelDir = Path(myConfig.get('paths', 'modelDir').strip('\''))
 candidate_prediction_file = dataDir / myConfig.get('paths', 'resultsFile').strip('\'')
 
 # raw files
-money_2018_file = dataDir / myConfig.get('paths', 'raw2018MoneyFile').strip('\'')
-votes_2018_file = dataDir / myConfig.get('paths', 'raw2018VoteFile').strip('\'')
-money_2016_file = dataDir / myConfig.get('paths', 'raw2016MoneyFile').strip('\'')
-votes_2016_file = dataDir / myConfig.get('paths', 'raw2016VoteFile').strip('\'')
+money_2018_file = dataDir / 'money_2018.csv'
+votes_2018_file = dataDir / 'votes_2018.xls'
+money_2016_file = dataDir / 'money_2016.csv'
+votes_2016_file = dataDir / 'votes_2016.xls'
 money_files = [money_2016_file, money_2018_file]
 votes_files = [votes_2016_file, votes_2018_file]
 
@@ -46,16 +33,16 @@ engineered_cand_data = dataDir / 'engineered_cand.csv'
 
 
 # files for training models
-training_race_file = dataDir / myConfig.get('paths', 'racesFile').strip('\'')
-training_candidate_file = dataDir / myConfig.get('paths', 'candidateFile').strip('\'')
-training_money_file = dataDir / myConfig.get('paths', 'moneyFile').strip('\'')
+training_race_file = dataDir / 'training_race_file.csv'
+training_candidate_file = dataDir / 'training_candidate_file.csv'
+training_money_file = dataDir / 'training_money_file.csv'
 
 # files for training models
-cleaned_race_file = dataDir / myConfig.get('paths', 'cleanRacesFile').strip('\'')
-cleaned_candidate_file = dataDir / myConfig.get('paths', 'cleanCandidateFile').strip('\'')
-cleaned_money_file = dataDir / myConfig.get('paths', 'cleanMoneyFile').strip('\'')
+cleaned_race_file = dataDir / 'clean_race_file.csv'
+cleaned_candidate_file = dataDir / 'clean_candidate_file.csv'
+cleaned_money_file = dataDir / 'clean_money_file.csv'
 
-logRegModel = modelDir / myConfig.get('paths', 'LogRegModel').strip('\'')
-randForestModel = modelDir / myConfig.get('paths', 'RandForestModel').strip('\'')
-linRegModel = modelDir / myConfig.get('paths', 'LinRegModel').strip('\'')
+# logRegModel = modelDir / 'LinRegModel.joblib'
+randForestModel = modelDir / 'RandForestModel.joblib'
+linRegModel = modelDir / 'LinRegModel.joblib'
 
