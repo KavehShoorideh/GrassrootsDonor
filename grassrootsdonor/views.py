@@ -1,5 +1,5 @@
 from flask import render_template, request
-from grassrootsdonor.flaskserver import app
+from grassrootsdonor import app
 from grassrootsdonor.flask_data_interface import process
 
 @app.route('/')
