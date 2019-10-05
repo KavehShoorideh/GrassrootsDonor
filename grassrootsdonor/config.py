@@ -1,10 +1,4 @@
 from pathlib import Path
-from configparser import ConfigParser
-
-myConfig = ConfigParser()
-myConfig.read('config.ini')
-print(f"Reading from configuration file 'config.ini'")
-# Reading from config.ini file returns extra single quotes, remove first using strip
 dataDir = Path('data')
 modelDir = Path('models')
 
