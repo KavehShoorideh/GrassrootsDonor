@@ -18,7 +18,6 @@ def clean(user_inputs):
     """
     #
 
-    print(user_inputs)
     if user_inputs['user_party'] is None:
         user_inputs['user_party'] = 'Republican'
     if user_inputs['user_today'] == '' or user_inputs['user_today'] is None:
@@ -56,7 +55,6 @@ def process(user_inputs):
         # returns candidate table with results
         data, races = preCalc(**user_inputs, live=True)
     else:
-        print(cfg.precalc_race_data)
         data = pd.read_csv(cfg.precalc_cand_data,  index_col=0)
         races = pd.read_csv(cfg.precalc_race_data, index_col=0)
     recommendations = filterResults(data, races, user_inputs)
