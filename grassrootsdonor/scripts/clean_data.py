@@ -1,3 +1,10 @@
+import re
+import pandas as pd
+
+def fixName(name):
+    """ Change lastname, firstname to firstname lastname"""
+    result = re.sub(r'(.*), (.*)', r'\2 \1', name)
+    return result
 
 def clean_data(votes_files, money_files):
     print('Cleaning!')

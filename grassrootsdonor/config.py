@@ -5,11 +5,9 @@ myConfig = ConfigParser()
 myConfig.read('config.ini')
 print(f"Reading from configuration file 'config.ini'")
 # Reading from config.ini file returns extra single quotes, remove first using strip
-dataDir = Path(myConfig.get('paths', 'dataDir').strip('\''))
-modelDir = Path(myConfig.get('paths', 'modelDir').strip('\''))
+dataDir = Path('data')
+modelDir = Path('models')
 
-# model output file
-candidate_prediction_file = dataDir / myConfig.get('paths', 'resultsFile').strip('\'')
 
 # raw files
 money_2018_file = dataDir / 'money_2018.csv'
