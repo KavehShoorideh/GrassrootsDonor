@@ -107,8 +107,7 @@ def engineerFeatures(start_date=None, end_date=None):
 
 if __name__ == '__main__':
     print("Engineering Features...")
-    os.chdir('..')
-    dfCand, dfRace, dfMoney = engineerFeatures(end_date = '2016-12-31')
+    dfCand, dfRace, dfMoney = engineerFeatures(end_date = '2018-12-31')
 
     # Save
     # dfMoney.to_csv(cfg.training_money_file)

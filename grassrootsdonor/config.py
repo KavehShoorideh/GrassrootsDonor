@@ -1,7 +1,11 @@
 from pathlib import Path
 import os
 
-projectRoot = Path(os.getcwd()) / 'grassrootsdonor'
+# With Flask:
+projectRoot = Path(os.getcwd())
+# On Server:
+# projectRoot = Path(os.getcwd()) / 'grassrootsdonor'
+
 dataDir = projectRoot / 'data'
 modelDir = projectRoot / 'models'
 
