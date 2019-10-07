@@ -6,9 +6,17 @@ import numpy as np
 from grassrootsdonor.engineer_features import engineerFeatures
 
 pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 10)
+pd.set_option('display.width', 1000)
 pd.options.mode.chained_assignment = None  # default='warn'
 race_key = ['CONTEST_NAME', 'ELECTION_DATE']
 cand_key = [*race_key, 'CANDIDATE_NAME']
+
+features = ['ELECTION_DATE', "PARTY_LEAN", 'WRITE_IN_FLAG', 'CAND_TOTAL_RAISED', 'CANDIDATE_COUNT',
+                'RACE_TOTAL_RAISED',
+                'RACE_VOTE_TOTAL']
+
+target = ['VOTE_SHARE']
 
 def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
     """
@@ -25,7 +33,7 @@ def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
         end_date = parse(user_today)
 
     print("REMEMBER TO FIX LOG SCALE!!!")
-    model = load(cfg.linRegModel)
+    model = load(cfg.randForestModel)
 
     # Engineer features
     data, _, _= engineerFeatures(start_date = '2017-01-01', end_date = end_date)
@@ -35,8 +43,8 @@ def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
     # races, baselineResults = createBaselineRaceTable(data, model)
     dollarlist = [1000, 10000, 20000, 50000, 100000, 2e5, 5e5, 1e6]
 
-    raceTable, baselineResults = createBaselineRaceTable(data, model)
-    candTables = createCandidateTables(data, model, raceTable, dollarlist)
+    raceTable, baselineResults = createBaselineRaceTable(data, model, features)
+    candTables = createCandidateTables(data, model, features, raceTable, dollarlist)
 
     # Add in VOTE_PCT_BEFORE
     temp = baselineResults.filter(items = [*cand_key, 'PRED_VOTE_PCT'])\
@@ -54,7 +62,7 @@ def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
     if live:
         return candTables, raceTable
 
-def createBaselineRaceTable(data, model=None):
+def createBaselineRaceTable(data, model, features):
     """
      Loop over races
         Feed each race to model
@@ -75,7 +83,7 @@ def createBaselineRaceTable(data, model=None):
     for key, group in groups:
 
         # Call model for each group
-        output = raceModel(group, model)
+        output = raceModel(group, model, features)
         resultsList.append(output)
         top = output.nlargest(2, 'PRED_VOTE_PCT')[[*cand_key, 'PARTY_NAME', 'PARTY_LEAN', 'PRED_VOTE_PCT']]
 
@@ -92,7 +100,7 @@ def createBaselineRaceTable(data, model=None):
     return races, baselineResults
 
 
-def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
+def createCandidateTables(data, model, features, races, dollarlist=[1000, 10000, 100000]):
     """
     Group races in table and loop over them
             Loop over candidates
@@ -108,7 +116,7 @@ def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
     # i.e. select those with the same index as  the races table we created (races doesn't have cand data)
     myRaceIndices = races.reset_index().set_index(race_key).index
     myRaces = data.reset_index(drop=True).set_index(race_key).loc[myRaceIndices]
-    grouping = myRaces.groupby(race_key)
+    grouping = myRaces.groupby(race_key, as_index=False)
     raceList = []
     for name, group in grouping:
         # Looping through races
@@ -123,11 +131,12 @@ def createCandidateTables(data, model, races, dollarlist=[1000, 10000, 100000]):
             dollarList = []
             for donation in dollarlist:
                 # these_cands['FAVORITE'] = these_cands.loc[row.Index, 'CANDIDATE_NAME']
-                newFacts = addMoney(group, row.Index, candName, donation)
-                newResults = raceModel(newFacts, model)
+                newFacts = addMoney(group, row.Index, candName, donation).reset_index()
+                newResults = raceModel(newFacts, model, features)
                 newResults = findRanking(newResults)
-                newResults = newResults[['CANDIDATE_NAME', 'PARTY_NAME', 'PRED_VOTE_PCT', 'RANK', 'WINS', 'FAVORITE', 'CAND_TOTAL_RAISED']]
-                newResults = newResults.reset_index().set_index([*race_key, 'FAVORITE'])
+                newcols = ['PARTY_NAME', 'RANK', 'WINS', 'FAVORITE','PRED_VOTE_PCT']
+                newResults = newResults[list(set(cand_key + features + newcols))]
+                newResults = newResults.set_index([*race_key, 'FAVORITE'])
                 dollarList.append(newResults.copy())
             candResults = pd.concat(dollarList, keys=dollarlist, names=['DONATION'])
             candResults['MIN_DONATION'] = findMinWinDonation(candResults, candName)
@@ -169,23 +178,37 @@ def findMinWinDonation(candGroup, candName):
     return output
 
 
-def raceModel(candGroup, model):
+def raceModel(candGroup, model, features):
     """ Take in a candidate group, append a column 'PRED_VOTE_PCT' with predicted percentage of votes"""
     trial = False
+    race_key = ['CONTEST_NAME', 'ELECTION_DATE']
+    cand_key = [*race_key, 'CANDIDATE_NAME']
+    data = candGroup.copy()
     # split group, apply
     if trial:
         # shoot out a bunch of random results
-        a = np.random.random(len(candGroup))
+        a = np.random.random(len(data))
         a /= a.sum()
-        candGroup = candGroup.copy()
-        candGroup['PRED_VOTE_PCT'] = a
+        data['PRED_VOTE_PCT'] = a
     else:
-        myFeatures = ['INCUMBENT_FLAG', 'PARTY_LEAN', 'CAND_TOTAL_RAISED', 'RACE_TOTAL_RAISED', 'RACE_VOTE_TOTAL']
-        candGroup['PRED_VOTE_PCT'] = model.predict(candGroup[myFeatures])
-        candGroup['PRED_VOTE_PCT'] = candGroup['PRED_VOTE_PCT'] / candGroup['PRED_VOTE_PCT'].sum()
-    return candGroup
+        # Select features from Data
+        X = data[features]
+
+        # Convert election dates into a binary feature
+        datemap = {parse('2016-06-07'): 0, parse('2018-06-05'): 1}
+        new_election_col = X['ELECTION_DATE'].apply(lambda x: datemap.get(x))
+        X['ELECTION_DATE'] = new_election_col
+
+        # Predict
+        y = model.predict(X)
+
+        # Normalize to 1
+        y = y / np.sum(y)
+        data['PRED_VOTE_PCT'] = y
+    return data
 
 if __name__ == '__main__':
-    os.chdir('..')
+    from os import chdir
+    chdir('..')
 
     preCalc()

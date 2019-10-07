@@ -4,8 +4,8 @@ import config as cfg
 import joblib
 import numpy as np
 import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
+import matplotlib.pyplot as plt
+import seaborn as sns
 import random
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error as mse
@@ -115,7 +115,23 @@ def apply_k_fold_regression(R, k=5, **hyperparams):
 
 
 if __name__=='__main__':
+    import matplotlib.pylab as pylab
+
+    params = {'legend.fontsize': 'x-large',
+              'figure.figsize': (8, 5),
+              'axes.labelsize': 'x-large',
+              'axes.titlesize': 'x-large',
+              'xtick.labelsize': 'x-large',
+              'ytick.labelsize': 'x-large'}
+    pylab.rcParams.update(params)
+
     data = prepare_data_by_race()
     model, rmse, stdev_rmse = apply_k_fold_regression(data, k=5, n_estimators=20, max_features=5, random_state=14)
     print(model, rmse, stdev_rmse)
+    print(*zip(features, 100*model.feature_importances_))
     joblib.dump(model, cfg.randForestModel)
+    ax = sns.barplot(x=features,y=100 * model.feature_importances_)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
+    ax.set_ylabel('Feature Importance (%)')
+    plt.tight_layout()
+    plt.show()
