@@ -35,7 +35,6 @@ def engineerFeatures(start_date=None, end_date=None):
     dfRace['ELECTION_DATE'] = pd.to_datetime(dfRace['ELECTION_DATE'])
     dfMoney['ELECTION_DATE'] = pd.to_datetime(dfMoney['ELECTION_DATE'])
 
-    print(dfCand.columns)
 
     dfMoney['TRANSACTION_DATE'] = pd.to_datetime(dfMoney['TRANSACTION_DATE'])
 
@@ -92,13 +91,58 @@ def engineerFeatures(start_date=None, end_date=None):
     dfCand = dfCand.fillna(0)
 
     # The tables below should have no NaN values, or 0 values
-    dfRace_r = dfRace.set_index(race_key).copy()
-    dfRace_r['RACE_VOTE_TOTAL'] = dfCand.groupby(race_key)['VOTE_TOTAL'].sum().copy()
-    dfRace = dfRace_r.reset_index()
-    # dfCand.to_csv('debugcand.csv')
-    # dfRace.to_csv('debugrace.csv')
+    dfRace = dfRace.set_index(race_key)
+    dfRace['RACE_VOTE_TOTAL'] = dfCand.groupby(race_key)['VOTE_TOTAL'].sum().copy()
+    dfRace = dfRace.reset_index()
     dfCand = pd.merge(dfCand, dfRace, on=race_key, how='left')
     dfCand['VOTE_SHARE'] = dfCand['VOTE_TOTAL'] / dfCand['RACE_VOTE_TOTAL']
+
+
+    def findPartyMoneyRanking(candGroup):
+        # temp = candGroup.sort_values('MONEY_FROM_PARTY', ascending=False)
+        threshold = candGroup['MONEY_FROM_PARTY'].max()
+        if threshold != 0:
+            candGroup['PARTY_FAVORITE'] = candGroup['MONEY_FROM_PARTY'] >= threshold
+        else:
+            candGroup['PARTY_FAVORITE'] = False
+        # temp = temp[['CANDIDATE_NAME', 'CONTEST_NAME', 'ELECTION_DATE', 'PARTY_FAVORITE']]
+        return candGroup
+
+    def findIndDonorRatio(candGroup):
+        # temp = candGroup.sort_values('MONEY_FROM_PARTY', ascending=False)
+        total = candGroup['NUM_IND_DONORS'].sum()
+        if total != 0:
+            candGroup['IND_DONOR_RATIO'] = candGroup['NUM_IND_DONORS'] / total
+        else:
+            candGroup['IND_DONOR_RATIO'] = 1 / candGroup.size
+        return candGroup
+
+
+    dfCand['CAND_SHARE_OF_MONEY_RAISED'] =  dfCand['CAND_TOTAL_RAISED'] / dfCand['RACE_TOTAL_RAISED']
+
+    mask = dfMoney['DONOR_ENTITY_TYPE'] == 'IND'
+    indDonors = dfMoney[mask].groupby(cand_key).agg(NUM_IND_DONORS=('TRANSACTION_AMOUNT', 'count')).reset_index()
+    indMoney = dfMoney[mask].groupby(cand_key).agg(SUM_IND_DONATIONS=('TRANSACTION_AMOUNT', 'sum')).reset_index()
+    dfCand = pd.merge(dfCand, indDonors, left_on=cand_key, right_on=cand_key, how='left').fillna(0)
+    dfCand = pd.merge(dfCand, indMoney, left_on=cand_key, right_on=cand_key, how='left').fillna(0)
+
+    mask = dfMoney['DONOR_ENTITY_TYPE'] == 'PTY'
+    ptyMoney = dfMoney[mask].groupby(cand_key).agg(MONEY_FROM_PARTY=('TRANSACTION_AMOUNT', 'sum')).reset_index()
+    dfCand = pd.merge(dfCand, ptyMoney, left_on=cand_key, right_on=cand_key, how='left').fillna(0)
+    dfCand = dfCand.groupby([*race_key, 'PARTY_NAME']).apply(findPartyMoneyRanking)
+    dfCand = dfCand.groupby([*race_key]).apply(findIndDonorRatio)
+
+
+    # dfCand['NUM_IND_DONORS'] =
+
+    # raceIndDonors = dfMoney.groupby(race_key).agg(RACE_IND_DONORS=('TRANSACTION_AMOUNT', 'sum')).reset_index()
+    # dfRace = pd.merge(dfRace, totalRace, left_on=race_key, right_on=race_key, how='left').fillna(0)
+    #
+    #
+
+    # New features
+    # fraction of individual donors
+    # dfCand =
 
     # TODO: find out why fillna is necessary here
     # dfCand = dfCand.fillna(0)
