@@ -101,6 +101,7 @@ def filterResults(data, races, user_inputs, output_count = 5):
     myCands['IMPACT'] = (myCands['VOTE_PCT_AFTER'] - myCands['VOTE_PCT_BEFORE']) / myCands['DONATION']
 
     # Calculate ideology matching
+    print(myCands)
     myCands['IDEOLOGY_ALIGNMENT'] = myCands.copy().apply(lambda x: ideologyMatch(user_party, x), axis=1)
 
     # Sort
@@ -130,7 +131,7 @@ def partyMatch(user_party, race):
     lean1 = partyLean.get(race['WINNER_PARTY_NAME'].lower(), 0)
     lean2 = partyLean.get(race['RUNNER_UP_PARTY_NAME'].lower(), 0)
     userLean = partyLean.get(user_party.lower(), 0)
-    if (sign(lean1) == sign(userLean)) or (sign(lean2) == sign(userLean)):
+    if (sign(lean1) == sign(userLean)): # or (sign(lean2) == sign(userLean)):
         # Somebody from your party is in the top 2! No need for extra money
         # TODO: improve this.
         return True
@@ -161,7 +162,6 @@ def mySort(data, user_priority):
     return temp
 
 if __name__ == '__main__':
-    os.chdir('..')
 
     user_inputs = {
         'user_party': 'Republican',
