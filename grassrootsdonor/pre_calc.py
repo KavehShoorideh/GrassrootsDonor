@@ -41,7 +41,7 @@ def preCalc(user_party=None, user_today=None, user_priority=None, live= False):
 
     # create candidate table
     # races, baselineResults = createBaselineRaceTable(data, model)
-    dollarlist = [1000, 10000, 20000, 50000, 100000, 2e5, 5e5, 1e6]
+    dollarlist = [10000, 25000, 50000, 75000, 100000, 2.5e5, 5e5, 7.5e5, 1e6]
 
     raceTable, baselineResults = createBaselineRaceTable(data, model, features)
     candTables = createCandidateTables(data, model, features, raceTable, dollarlist)
@@ -180,31 +180,19 @@ def findMinWinDonation(candGroup, candName):
 
 def raceModel(candGroup, model, features):
     """ Take in a candidate group, append a column 'PRED_VOTE_PCT' with predicted percentage of votes"""
-    trial = False
     race_key = ['CONTEST_NAME', 'ELECTION_DATE']
     cand_key = [*race_key, 'CANDIDATE_NAME']
     data = candGroup.copy()
-    # split group, apply
-    if trial:
-        # shoot out a bunch of random results
-        a = np.random.random(len(data))
-        a /= a.sum()
-        data['PRED_VOTE_PCT'] = a
-    else:
-        # Select features from Data
-        X = data[features]
-
-        # Convert election dates into a binary feature
-        datemap = {parse('2016-06-07'): 0, parse('2018-06-05'): 1}
-        new_election_col = X['ELECTION_DATE'].apply(lambda x: datemap.get(x))
-        X['ELECTION_DATE'] = new_election_col
-
-        # Predict
-        y = model.predict(X)
-
-        # Normalize to 1
-        y = y / np.sum(y)
-        data['PRED_VOTE_PCT'] = y
+    data['RANDOM_VARIABLE'] = np.random.randint(100)
+    raceFeatures = ['CANDIDATE_COUNT', 'RACE_TOTAL_RAISED', 'RACE_VOTE_TOTAL']
+    moneyFeatures = ['CAND_TOTAL_RAISED', 'CAND_SHARE_OF_MONEY_RAISED', 'NUM_IND_DONORS', 'SUM_IND_DONATIONS']
+    candFeatures = ['PARTY_LEAN', 'WRITE_IN_FLAG', 'PARTY_FAVORITE', 'IND_DONOR_RATIO']
+    randomFeature = ['RANDOM_VARIABLE']
+    features = raceFeatures + candFeatures + randomFeature + moneyFeatures
+    X = data[features]
+    y = model.predict(X)
+    y = y / np.sum(y)
+    data['PRED_VOTE_PCT'] = y
     return data
 
 if __name__ == '__main__':
