@@ -101,7 +101,6 @@ def filterResults(data, races, user_inputs, output_count = 5):
     myCands['IMPACT'] = (myCands['VOTE_PCT_AFTER'] - myCands['VOTE_PCT_BEFORE']) / myCands['DONATION']
 
     # Calculate ideology matching
-    print(myCands)
     myCands['IDEOLOGY_ALIGNMENT'] = myCands.copy().apply(lambda x: ideologyMatch(user_party, x), axis=1)
 
     # Sort
