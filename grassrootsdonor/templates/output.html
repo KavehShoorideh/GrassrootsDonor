@@ -88,7 +88,7 @@
 <!--          <th>Win Chance Before</th>-->
           <th>Campaign Site Link<th></tr>
       {% for record in recommendations %}
-      <tr id="{{ record['CANDIDATE_NAME'] }}" ><td>{{ record['CONTEST_NAME'] }}</td>
+      <tr id='{{ record['CANDIDATE_NAME'] }}' ><td>{{ record['CONTEST_NAME'] }}</td>
           <td>{{ record['CANDIDATE_NAME']}}</td>
           <td>{{ record['PARTY_NAME'] }}</td>
 <!--          <td>{{ record['IDEOLOGY_ALIGNMENT'] }}</td>-->
@@ -96,7 +96,7 @@
           <td>{{ record['MIN_DONATION'] }}</td>
           <td>{{ record['VOTE_PCT_AFTER'] }}</td>
           <td>{{ record['NUM_DONATIONS'] }}</td>
-          <td><a href={{ record['web_link'] }}>{{ record['web_link'] }}</a></td>
+          <td><a href="{{ record['web_link'] }}">{{ record['web_link'] }}</a></td>
       </tr>
       {% endfor %}
       </table>
@@ -116,16 +116,16 @@
 <script>
     function popupbox() {
         {% for record in recommendations %}
-        if (this.id == "{{record['CANDIDATE_NAME']}}")
+        if (this.id == '{{ record['CANDIDATE_NAME'] }}')
         {
-            alert("{{record['TEXT']|safe}}");
+            alert(" {{ record['TEXT'] | safe }}");
             return;
         }
         {% endfor %}
     }
 
     {% for record in recommendations %}
-    document.getElementById("{{record['CANDIDATE_NAME']}}").onclick = popupbox;
+    document.getElementById('{{record['CANDIDATE_NAME']}}').onclick = popupbox;
     {% endfor %}
 </script>
   </body>

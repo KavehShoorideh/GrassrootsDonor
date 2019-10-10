@@ -48,7 +48,7 @@ def make_recommendation():
 
                 record['TEXT'] = \
                     f"I'm donating ${user_budget:,.0f} to the campaign of {record['CANDIDATE_NAME']} for {record['CONTEST_NAME']}. With {record['NUM_DONATIONS']} donations of ${user_budget:,.0f}, we can help a {record['PARTY_NAME']} make it to the general election! Please donate and share!"
-
+                record['TEXT'] = record['TEXT'].replace('"', '\\"')
             # Some recommendations have been received!
             top_rec = recommendations[0]
             user_budget = f"${user_budget:,.0f}"
