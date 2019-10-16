@@ -107,7 +107,7 @@ def filterResults(data, races, user_inputs, output_count = 5):
     myCands = mySort(myCands, user_inputs['user_priority'])
 
     # Drop negative numbers!
-    mask = (myCands['VOTE_PCT_BEFORE'] > 0) & (myCands['VOTE_PCT_AFTER'] > myCands['VOTE_PCT_BEFORE'])
+    mask = (myCands['VOTE_PCT_BEFORE'] > 0) & (myCands['VOTE_PCT_AFTER'] > (myCands['VOTE_PCT_BEFORE']))
     myCands = myCands[mask]
 
     myCands = myCands.reset_index()
