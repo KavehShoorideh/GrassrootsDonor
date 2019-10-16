@@ -174,7 +174,9 @@ def findMinWinDonation(candGroup, candName):
     if temp.empty:
         output = np.nan
     else:
-        output = temp.min()
+        # output = temp.min()
+        output2 = temp.nsmallest(2)
+        output = max(output2)
     return output
 
 
